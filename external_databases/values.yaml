@@ -1,0 +1,12 @@
+minio:
+  image: minio/minio:latest
+  accessKey: minioadmin
+  secretKey: minioadmin
+  storageSize: 10Gi
+
+postgres:
+  image: postgres:15
+  user: benchmark
+  password: benchmark
+  database: benchmark
+  storageSize: 5Gi

@@ -1,0 +1,643 @@
+postgresql:
+  # -- enabled included Postgres container for demo purposes only using bitnami
+  enabled: false
+  fullnameOverride: windmill-postgresql
+  primary:
+    persistence:
+      enabled: true
+    resources:
+      limits:
+        memory: "2Gi"
+      requests:
+        cpu: "250m"
+        memory: "1024Mi"
+  auth:
+    postgresPassword: windmill
+    database: windmill
+
+minio:
+  # -- enabled included Minio operator for s3 resource demo purposes
+  enabled: false
+  fullnameOverride: windmill-minio
+  mode: standalone
+  primary:
+    enabled: true
+  auth:
+    rootUser: windmill
+    rootPassword: windmill
+
+windmill:
+  # -- windmill app image tag, will use the App version if not defined
+  tag: "latest"
+  # -- windmill image tag, will use the Acorresponding ee or ce image from ghcr if not defined. Do not include tag in the image name.
+  image: "windmill-bench-project"
+
+  imagePullPolicy: IfNotPresent
+
+  # -- image pull secrets for windmill.  by default no image pull secrets will be configured.
+  imagePullSecrets: ""
+  # -- replica for the application app
+  appReplicas: 0
+  # -- replicas for the lsp smart assistant (not required but useful for the web IDE)
+  lspReplicas: 0
+  # -- replicas for the multiplayer containers used by the app (ee only and ignored if enterprise not enabled)
+  multiplayerReplicas: 0
+  # -- name of the existing secret storing the database URI, take precedence over databaseUrl.
+  databaseUrlSecretName: ""
+  # -- name of the key in existing secret storing the database URI. The default key of the url is 'url'
+  databaseUrlSecretKey: url
+  # -- Postgres URI, pods will crashloop if database is unreachable, sets DATABASE_URL environment variable in app and worker container
+  databaseUrl: postgres://postgres:windmill@windmill-postgresql/windmill?sslmode=disable
+  # -- whether to create a secret containing the value of databaseUrl
+  databaseSecret: false
+  # -- domain as shown in browser. url of ths service is at: {baseProtocol}://{baseDomain}
+  baseDomain: windmill
+  # -- protocol as shown in browser, change to https etc based on your endpoint/ingress configuration, this variable and `baseDomain` are used as part of the BASE_URL environment variable in app and worker container
+  baseProtocol: http
+  # -- domain to use for the cookies. Use it if windmill is hosted on a subdomain and you need to share the cookies with the hub for instance
+  cookieDomain: ""
+  # -- pass the index url to pip for private registries
+  pipIndexUrl: ""
+  # -- pass the extra index url to pip for private registries
+  pipExtraIndexUrl: ""
+  # -- pass the trusted host to pip for private registries
+  pipTrustedHost: ""
+  # -- pass the npm for private registries
+  npmConfigRegistry: ""
+  # -- send instance events to a webhook. Can be hooked back to windmill
+  instanceEventsWebhook: ""
+  # -- configure a custom openai base path for azure
+  openaiAzureBasePath: ""
+  # -- mount the docker socket inside the container to be able to run docker command as docker client to the host docker daemon
+  exposeHostDocker: false
+  # -- rust log level, set to debug for more information etc, sets RUST_LOG environment variable in app and worker container
+  rustLog: info
+  # -- host aliases for all pods (can be overridden by individual worker groups)
+  hostAliases: []
+
+  # extra worker groups
+  workerGroups:
+    # workers configuration
+    # The default worker group
+    - name: "default"
+      # -- Controller to use. Valid options are "Deployment" and "StatefulSet"
+      controller: "Deployment"
+
+      replicas: 0
+      # -- Annotations to apply to the pods
+      annotations: {}
+
+      # -- If a job is being ran, the container will wait for it to finish before terminating until this grace period
+      terminationGracePeriodSeconds: 604800
+
+      # -- Labels to apply to the pods
+      labels: 
+        pod_type: ephemeral_worker
+
+      # -- Node selector to use for scheduling the pods
+      nodeSelector: {}
+
+      # -- Tolerations to apply to the pods
+      tolerations: []
+
+      # -- Host aliases to apply to the pods (overrides global hostAliases if set)
+      hostAliases: []
+
+      # -- Security context to apply to the container
+      podSecurityContext:
+        # -- run as user. The default is 0 for root user
+        runAsUser: 0
+        # -- run explicitly as a non-root user. The default is false.
+        runAsNonRoot: false
+      # -- Security context to apply to the pod
+      containerSecurityContext: {}
+
+      # -- Affinity rules to apply to the pods
+      affinity: {}
+
+      # -- Resource limits and requests for the pods
+      resources:
+        limits:
+          memory: "2Gi"
+
+      # -- Extra environment variables to apply to the pods
+      extraEnv: []
+      # -- Extra sidecar containers
+      extraContainers: []
+      mode: "worker"
+
+      # -- Init containers
+      initContainers: []
+      volumes: []
+      volumeMounts: []
+
+      # -- Volume claim templates. Only applies when controller is "StatefulSet"
+      volumeClaimTemplates: []
+
+      # -- command override
+      command: []
+
+      # -- mount the docker socket inside the container to be able to run docker command as docker client to the host docker daemon
+      exposeHostDocker: false
+
+    - name: "custom-python-project"
+      # -- Controller to use. Valid options are "Deployment" and "StatefulSet"
+      controller: "Deployment"
+
+      replicas: 4
+      # -- Annotations to apply to the pods
+      annotations: {}
+
+      # -- If a job is being ran, the container will wait for it to finish before terminating until this grace period
+      terminationGracePeriodSeconds: 604800
+
+      # -- Labels to apply to the pods
+      labels:
+        pod_type: ephemeral_worker
+
+      # -- Node selector to use for scheduling the pods
+      nodeSelector: {}
+
+      # -- Tolerations to apply to the pods
+      tolerations: []
+
+      # -- Host aliases to apply to the pods (overrides global hostAliases if set)
+      hostAliases: []
+
+      # -- Security context to apply to the container
+      podSecurityContext:
+        # -- run as user. The default is 0 for root user
+        runAsUser: 0
+        # -- run explicitly as a non-root user. The default is false.
+        runAsNonRoot: false
+      # -- Security context to apply to the pod
+      containerSecurityContext: {}
+
+      # -- Affinity rules to apply to the pods
+      affinity: {}
+
+      # -- Resource limits and requests for the pods
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
+
+      # -- Extra environment variables to apply to the pods
+      extraEnv:
+        - name: WORKER_TAGS
+          value: "custom-python-project"
+      # -- Extra sidecar containers
+      extraContainers: []
+      mode: "worker"
+
+      # -- Init containers
+      initContainers: []
+      volumes: []
+      volumeMounts: []
+
+      # -- Volume claim templates. Only applies when controller is "StatefulSet"
+      volumeClaimTemplates: []
+
+      # -- command override
+      command: []
+
+      # -- mount the docker socket inside the container to be able to run docker command as docker client to the host docker daemon
+      exposeHostDocker: false
+
+    - name: "native"
+      # -- Controller to use. Valid options are "Deployment" and "StatefulSet"
+      controller: "Deployment"
+
+      replicas: 0
+      # -- Annotations to apply to the pods
+      annotations: {}
+
+      # -- Labels to apply to the pods
+      labels:
+        pod_type: permanent_pod
+
+      # -- Node selector to use for scheduling the pods
+      nodeSelector: {}
+
+      # -- Tolerations to apply to the pods
+      tolerations: []
+
+      # -- Host aliases to apply to the pods (overrides global hostAliases if set)
+      hostAliases: []
+
+      # -- Security context to apply to the container
+      podSecurityContext:
+        # -- run as user. The default is 0 for root user
+        runAsUser: 0
+        # -- run explicitly as a non-root user. The default is false.
+        runAsNonRoot: false
+      # -- Security context to apply to the pod
+      containerSecurityContext: {}
+
+      # -- Affinity rules to apply to the pods
+      affinity: {}
+
+      # -- Resource limits and requests for the pods
+      resources:
+        limits:
+          memory: "1Gi"
+
+      # -- Extra environment variables to apply to the pods
+      extraEnv:
+        - name: "NUM_WORKERS"
+          value: "2"
+        - name: "SLEEP_QUEUE"
+          value: "200"
+      # -- Extra sidecar containers
+      extraContainers: []
+
+      mode: "worker"
+
+      volumes: []
+      volumeMounts: []
+
+      # -- mount the docker socket inside the container to be able to run docker command as docker client to the host docker daemon
+      exposeHostDocker: false
+
+      # -- Volume claim templates. Only applies when controller is "StatefulSet"
+      volumeClaimTemplates: []
+
+    - name: "gpu"
+      # -- Controller to use. Valid options are "Deployment" and "StatefulSet"
+      controller: "Deployment"
+
+      replicas: 0
+      # -- Annotations to apply to the pods
+      annotations: {}
+
+      # -- Labels to apply to the pods
+      labels: {}
+
+      # -- Node selector to use for scheduling the pods
+      nodeSelector: {}
+
+      # -- Tolerations to apply to the pods
+      tolerations: []
+
+      # -- Host aliases to apply to the pods (overrides global hostAliases if set)
+      hostAliases: []
+
+      # -- Security context to apply to the container
+      podSecurityContext:
+        # -- run as user. The default is 0 for root user
+        runAsUser: 0
+        # -- run explicitly as a non-root user. The default is false.
+        runAsNonRoot: false
+      # -- Security context to apply to the pod
+      containerSecurityContext: {}
+
+      # -- Affinity rules to apply to the pods
+      affinity: {}
+
+      # -- Resource limits and requests for the pods
+      resources:
+        limits:
+          memory: "2Gi"
+
+      # -- Extra environment variables to apply to the pods
+      extraEnv: []
+      # -- Extra sidecar containers
+      extraContainers: []
+
+      mode: "worker"
+
+      volumes: []
+      volumeMounts: []
+
+      # -- command override
+      command: []
+
+      # -- mount the docker socket inside the container to be able to run docker command as docker client to the host docker daemon
+      exposeHostDocker: false
+
+      # -- Volume claim templates. Only applies when controller is "StatefulSet"
+      volumeClaimTemplates: []
+  # app configuration
+  app:
+    # -- Annotations to apply to the pods
+    annotations: {}
+
+    # -- Annotations to apply to the pods
+    labels:
+      pod_type: permanent_pod
+
+    # -- Node selector to use for scheduling the pods
+    nodeSelector: {}
+
+    # -- Tolerations to apply to the pods
+    tolerations: []
+
+    # -- Host aliases to apply to the pods (overrides global hostAliases if set)
+    hostAliases: []
+
+    # -- legacy, use podSecurityContext instead
+    securityContext: {}
+    # -- Security context to apply to the pods
+    podSecurityContext:
+      # -- run as user. The default is 0 for root user
+      runAsUser: 0
+      # -- run explicitly as a non-root user. The default is false.
+      runAsNonRoot: false
+    containerSecurityContext: {}
+
+    # -- Affinity rules to apply to the pods
+    affinity: {}
+
+    # -- Resource limits and requests for the pods
+    resources:
+      limits:
+        memory: "2Gi"
+
+    # -- Extra environment variables to apply to the pods
+    extraEnv: []
+
+    # -- Init containers
+    initContainers: []
+
+    # -- Extra sidecar containers
+    extraContainers: []
+
+    # -- volumes
+    volumes: []
+
+    volumeMounts: []
+
+    # app autoscaling configuration
+    autoscaling:
+      # -- enable or disable autoscaling
+      enabled: false
+      # -- maximum autoscaler replicas
+      maxReplicas: 10
+      # -- target CPU utilization
+      targetCPUUtilizationPercentage: 80
+
+    # app service configuration
+    service:
+      # -- Annotations to apply to the service
+      annotations: {}
+
+    # -- smtp service configuration for email triggers
+    smtpService:
+      # -- whether to expose the smtp port of the app using a load balancer service
+      enabled: false
+      # -- annotations to apply to the service
+      annotations: {}
+
+  # lsp configuration
+  lsp:
+    tag: "latest"
+
+    # -- enable or disable lsp
+    enabled: false
+
+    # -- Annotations to apply to the pods
+    annotations: {}
+
+    # -- Annotations to apply to the pods
+    labels: {}
+
+    # -- Node selector to use for scheduling the pods
+    nodeSelector: {}
+
+    # -- Tolerations to apply to the pods
+    tolerations: []
+
+    # -- legacy, use podSecurityContext instead
+    securityContext:
+    # -- Security context to apply to the pods
+    podSecurityContext:
+      # -- run as user. The default is 0 for root user
+      runAsUser: 0
+      # -- run explicitly as a non-root user. The default is false.
+      runAsNonRoot: false
+    containerSecurityContext: {}
+
+    # -- Affinity rules to apply to the pods
+    affinity: {}
+
+    # -- Resource limits and requests for the pods
+    resources:
+      limits:
+        memory: "1Gi"
+
+    # -- Extra environment variables to apply to the pods
+    extraEnv: []
+
+    # lsp autoscaling configuration
+    autoscaling:
+      # -- enable or disable autoscaling
+      enabled: false
+      # -- maximum autoscaler replicas
+      maxReplicas: 10
+      # -- target CPU utilization
+      targetCPUUtilizationPercentage: 80
+
+    # lsp service configuration
+    service:
+      # -- Annotations to apply to the service
+      annotations: {}
+
+  # multiplayer configuration
+  multiplayer:
+    tag: "latest"
+
+    # -- enable or disable multiplayer
+    enabled: false
+
+    # -- Annotations to apply to the pods
+    annotations: {}
+
+    # -- Annotations to apply to the pods
+    labels: {}
+
+    # -- Node selector to use for scheduling the pods
+    nodeSelector: {}
+
+    # -- Tolerations to apply to the pods
+    tolerations: []
+
+    # -- legacy, use podSecurityContext instead
+    securityContext:
+    # -- Security context to apply to the pods
+    podSecurityContext:
+      # -- run as user. The default is 0 for root user
+      runAsUser: 0
+      # -- run explicitly as a non-root user. The default is false.
+      runAsNonRoot: false
+    containerSecurityContext: {}
+
+    # -- Affinity rules to apply to the pods
+    affinity: {}
+
+    # -- Resource limits and requests for the pods
+    resources:
+      limits:
+        memory: "1Gi"
+
+    # -- Extra environment variables to apply to the pods
+    extraEnv: []
+
+    # lsp autoscaling configuration
+    autoscaling:
+      # -- enable or disable autoscaling
+      enabled: false
+      # -- maximum autoscaler replicas
+      maxReplicas: 10
+      # -- target CPU utilization
+      targetCPUUtilizationPercentage: 80
+
+  # indexer configuration
+  indexer:
+    # -- enable or disable indexer
+    enabled: false
+
+    # -- Annotations to apply to the pods
+    annotations: {}
+
+    # -- Annotations to apply to the pods
+    labels: {}
+
+    # -- Node selector to use for scheduling the pods
+    nodeSelector: {}
+
+    # -- Tolerations to apply to the pods
+    tolerations: []
+
+    # -- legacy, use podSecurityContext instead
+    securityContext:
+    # -- Security context to apply to the pods
+    podSecurityContext:
+      # -- run as user. The default is 0 for root user
+      runAsUser: 0
+      # -- run explicitly as a non-root user. The default is false.
+      runAsNonRoot: false
+    containerSecurityContext: {}
+
+    # -- Affinity rules to apply to the pods
+    affinity: {}
+
+    # -- Resource limits and requests for the pods
+    resources:
+      limits:
+        memory: "2Gi"
+        ephemeral-storage: "50Gi"
+
+    # -- Extra sidecar containers
+    extraContainers: []
+
+    # -- Extra environment variables to apply to the pods
+    extraEnv: []
+
+ingress:
+  # -- enable/disable included ingress resource
+  enabled: false
+  className: ""
+  annotations: {}
+  # -- TLS config for the ingress resource. Useful when using cert-manager and nginx-ingress
+  tls: []
+
+enterprise:
+  # -- enable Windmill Enterprise, requires license key.
+  enabled: false
+  # -- name of the secret storing the enterprise license key, take precedence over licenseKey string.
+  licenseKeySecretName: ""
+  # -- name of the key in secret storing the enterprise license key. The default key is 'licenseKey'
+  licenseKeySecretKey: licenseKey
+  # -- enterprise license key. (Recommended to avoid: It is recommended to pass it from the Instance settings UI instead)
+  licenseKey: ""
+  enabledS3DistributedCache: false
+  # -- S3 bucket to use for dependency cache. Sets S3_CACHE_BUCKET environment variable in worker container
+  s3CacheBucket: ""
+  # -- SAML Metadata URL/Content to enable SAML SSO (Can be set in the Instance Settings UI which is the recommended method)
+  samlMetadata: ""
+  # -- SCIM token (Can be set in the instance settings UI which is the recommended method)
+  scimToken: ""
+  # -- name of the secret storing the SCIM token, takes precedence over SCIM token string.
+  scimTokenSecretName: ""
+  # -- name of the key in secret storing the SCIM token. The default key of the SCIM token is 'scimToken'
+  scimTokenSecretKey: scimToken
+  # -- use nsjail for sandboxing
+  nsjail: false
+  # -- Create RBAC Roles and RoleBindings needed for native k8s autoscaling integration.
+  createKubernetesAutoscalingRolesAndBindings: false
+
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: false
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  annotations: {}
+
+hub:
+  # -- enable Windmill Hub, requires Windmill Enterprise and license key
+  enabled: false
+  # -- enterprise license key, deprecated use the enterprise values instead
+  licenseKey: ""
+  # -- replicas for the hub
+  replicas: 1
+  # -- image
+  image: ""
+  # -- name of the secret storing the database URI, take precedence over databaseUrl.
+  databaseUrlSecretName: ""
+  # -- name of the key in secret storing the database URI. The default key of the url is 'url'
+  databaseUrlSecretKey: url
+  # -- Postgres URI, pods will crashloop if database is unreachable, sets DATABASE_URL environment variable in app and worker container
+  databaseUrl: postgres://postgres:windmill@windmill-hub-postgresql/windmillhub?sslmode=disable
+  # -- whether to create a secret containing the value of databaseUrl
+  databaseSecret: false
+  # -- domain as shown in browser. url of ths service is at: {baseProtocol}://{baseDomain}
+  # -- should be a subdomain of the app domain so that cookies can be shared
+  # -- you also need to set the cookieDomain to the root domain in the app configuration
+  baseDomain: hub.windmill
+  # -- protocol as shown in browser, change to https etc based on your endpoint/ingress configuration, this variable and `baseDomain` are used as part of the BASE_URL environment variable in app and worker container
+  baseProtocol: http
+
+  # -- Annotations to apply to the pods
+  annotations: {}
+  # -- Annotations to apply to the pods
+  labels: {}
+  # -- Node selector to use for scheduling the pods
+  nodeSelector: {}
+  # -- Tolerations to apply to the pods
+  tolerations: []
+  # -- legacy, use podSecurityContext instead
+  securityContext:
+  # -- Security context to apply to the pods
+  podSecurityContext:
+    # -- run as user. The default is 0 for root user
+    runAsUser: 0
+    # -- run explicitly as a non-root user. The default is false.
+    runAsNonRoot: false
+  containerSecurityContext: {}
+
+  # -- Affinity rules to apply to the pods
+  affinity: {}
+  # -- Resource limits and requests for the pods
+  resources:
+    limits:
+      memory: "2Gi"
+  # -- Extra environment variables to apply to the pods
+  extraEnv: []
+
+hub-postgresql:
+  # -- enabled included Postgres container for demo purposes only using bitnami
+  enabled: false
+  fullnameOverride: windmill-hub-postgresql
+  primary:
+    persistence:
+      enabled: false
+    resources:
+      limits:
+        memory: "2Gi"
+      requests:
+        cpu: "1"
+        memory: "1024Mi"
+  auth:
+    postgresPassword: windmill
+    database: windmillhub

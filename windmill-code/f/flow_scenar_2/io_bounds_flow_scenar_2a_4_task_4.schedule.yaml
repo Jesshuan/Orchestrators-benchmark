@@ -1,0 +1,19 @@
+summary: io_bounds_flow_scenar_2a-4_task_4
+description: ''
+args:
+  scheduling_interval: '300'
+  workflow_number: '4'
+cron_version: v2
+email: admin@windmill.dev
+enabled: false
+is_flow: true
+no_flow_overlap: false
+on_failure_exact: false
+on_failure_times: 1
+on_recovery_extra_args: {}
+on_recovery_times: 1
+on_success_extra_args: {}
+schedule: 0 */5 * * * *
+script_path: f/flow_scenar_2/io_bound_flow_scenar_2a_bash-4_tasks
+timezone: Europe/Paris
+ws_error_handler_muted: false

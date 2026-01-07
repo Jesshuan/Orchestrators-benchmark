@@ -1,0 +1,120 @@
+# -------------------------
+# Global settings
+# -------------------------
+executor: CeleryExecutor
+
+labels:
+  permanent_pod: "true"
+
+# -------------------------
+# Airflow image (webserver, scheduler, triggerer)
+# -------------------------
+images:
+  airflow:
+    repository: apache/airflow
+    tag: "3.0.0-python3.10"
+    pullPolicy: IfNotPresent
+
+# -------------------------
+# DAGs: local mount (no git-sync)
+# -------------------------
+dags:
+  persistence:
+    enabled: true
+    existingClaim: airflow-dags-pvc
+  gitSync:
+    enabled: false
+
+# -------------------------
+# Webserver
+# -------------------------
+webserver:
+  replicas: 1
+  labels:
+    permanent_pod: "true"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+
+# -------------------------
+# Scheduler
+# -------------------------
+scheduler:
+  replicas: 1
+  labels:
+    permanent_pod: "true"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "512Mi"
+
+# -------------------------
+# Triggerer (Airflow 3)
+# -------------------------
+triggerer:
+  enabled: true
+  replicas: 1
+  labels:
+    permanent_pod: "true"
+
+# -------------------------
+# Workers
+# -------------------------
+workers:
+  enabled: true
+  replicas: 4   # HARD LIMIT: no more than 4 workers
+  labels:
+    ephemeral_worker: "true"
+  image:
+    repository: airflow-python-project
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+  persistence:
+    enabled: false
+
+# -------------------------
+# Celery configuration
+# -------------------------
+celery:
+  workerConcurrency: 1  # Optional: makes benchmarking more deterministic
+
+# -------------------------
+# Redis (Celery broker)
+# -------------------------
+redis:
+  enabled: true
+  labels:
+    permanent_pod: "true"
+  persistence:
+    enabled: true
+    size: 1Gi
+
+# -------------------------
+# PostgreSQL (metadata DB)
+# -------------------------
+postgresql:
+  enabled: true
+  labels:
+    permanent_pod: "true"
+  persistence:
+    enabled: true
+    size: 5Gi
+
+# -------------------------
+# Logs persistence
+# -------------------------
+logs:
+  persistence:
+    enabled: true
+    size: 5Gi
+
+# -------------------------
+# ServiceAccount (simpler for local)
+# -------------------------
+serviceAccount:
+  create: true

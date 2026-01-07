@@ -1,0 +1,6 @@
+summary: bash_scripts
+display_name: bash_scripts
+extra_perms:
+  u/admin: true
+owners:
+  - u/admin

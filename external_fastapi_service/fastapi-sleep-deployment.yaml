@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-sleep
+  namespace: fastapi-sleep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-sleep
+  template:
+    metadata:
+      labels:
+        app: fastapi-sleep
+    spec:
+      containers:
+        - name: app
+          image: fastapi-sleep:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

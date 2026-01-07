@@ -1,0 +1,9 @@
+dependencies:
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 58.6.0
+- name: prometheus-pushgateway
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 2.11.0
+digest: sha256:2b4e49d2be7635afde3022a44aeb05796a0e1f18e38daf7f08f7d731678339d8
+generated: "2025-12-21T18:19:46.989929641+01:00"

@@ -1,0 +1,80 @@
+summary: io_bound_flow_scenar_2b_python-4_tasks
+description: >-
+  The scenario 2.b (python scripts) flow with the 4 "i/o bounds" tasks :
+  deletion existing tables, handle s3 transformation with duckdb, wait external
+  service, copy on postgresdb.
+value:
+  modules:
+    - id: j
+      value:
+        type: script
+        input_transforms:
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          worflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/python_scripts/task_1_delete_s3_scenar_2_b_python_script
+    - id: k
+      value:
+        type: script
+        input_transforms:
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          scheduling_time:
+            type: javascript
+            expr: results.j.end_ts
+          worflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/python_scripts/task_2_s3_ingestion_scenar_2_b_python_script
+    - id: l
+      value:
+        type: script
+        input_transforms:
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          scheduling_time:
+            type: javascript
+            expr: results.k.end_ts
+          worflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/python_scripts/task_3_wait_external_service_scenar_2_b_python_script
+    - id: m
+      value:
+        type: script
+        input_transforms:
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          scheduling_time:
+            type: javascript
+            expr: results.l.end_ts
+          worflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/python_scripts/task_4_copy_s3_to_postgres_scenar_2b_python_script
+schema:
+  $schema: 'https://json-schema.org/draft/2020-12/schema'
+  type: object
+  order:
+    - scheduling_interval
+    - workflow_number
+  properties:
+    scheduling_interval:
+      type: string
+      description: ''
+      default: ''
+    workflow_number:
+      type: string
+      description: ''
+      default: ''
+  required: []

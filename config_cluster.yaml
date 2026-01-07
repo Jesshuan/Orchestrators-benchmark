@@ -1,0 +1,12 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: bench-orchestrator
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 80   # inside the kind node
+        hostPort: 80        # on your machine
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP

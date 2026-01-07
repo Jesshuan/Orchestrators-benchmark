@@ -1,0 +1,22 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: windmill-workers-project-a
+  namespace: windmill
+spec:
+  scaleTargetRef:
+    name: windmill-workers-project-a
+    kind: Deployment
+  minReplicaCount: 0
+  maxReplicaCount: 4
+  pollingInterval: 10  # Optional. Default: 30 seconds
+  cooldownPeriod:  10 # Optional. Default: 300 seconds
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.windmill.svc.cluster.local:9090
+      metricName: pending_jobs
+      threshold: '1'
+      query: |
+        pending_jobs{tag="dev_project-a"}
+

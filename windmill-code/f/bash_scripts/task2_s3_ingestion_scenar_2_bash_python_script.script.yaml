@@ -1,0 +1,38 @@
+summary: task2_s3_ingestion_scenar_2_bash_python_script
+description: >-
+  A simple bash script for the benchmark scenario 2 variant 1 with bash script -
+  task2
+lock: ''
+envs:
+  - >-
+    PYTHONPATH=/tmp/windmill/cache/python_3.12/global-site-packages:${PYTHONPATH}
+  - 'MINIO_ENDPOINT=http://minio.external-db.svc.cluster.local:9000'
+  - MINIO_ACCESS_KEY=minioadmin
+  - MINIO_SECRET_KEY=minioadmin
+  - OUTPUT_BUCKET=output-data
+  - INPUT_BUCKET=input-data
+  - >-
+    PUSHGATEWAY_URL=http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
+  - INPUT_KEY=users.parquet
+kind: script
+schema:
+  $schema: 'https://json-schema.org/draft/2020-12/schema'
+  type: object
+  properties:
+    last_result:
+      type: string
+      description: ''
+      default: None
+      originalType: string
+    scheduling_interval:
+      type: string
+      description: ''
+      default: '300'
+      originalType: string
+    workflow_number:
+      type: string
+      description: ''
+      default: '1'
+      originalType: string
+  required: []
+tag: custom-python-project

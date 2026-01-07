@@ -1,0 +1,19 @@
+columns:
+  - name: user_id
+    provider: Increment.integer
+    start: 1
+
+  - name: email
+    provider: Person.email
+    domain: example.com
+
+  - name: signup_date
+    provider: Random.Date.date
+    format: "%Y-%m-%d"
+    after: 2020-01-01
+    before: 2024-12-31
+
+info:
+  output_name: users
+  output_format: parquet
+  rows: 1_000_000

@@ -1,0 +1,28 @@
+summary: task_3_wait_external_service_scenar_2_b_python_script
+description: ''
+lock: >-
+  !inline
+  f/python_scripts/task_3_wait_external_service_scenar_2_b_python_script.script.lock
+envs:
+  - >-
+    PUSHGATEWAY_URL=http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
+  - >-
+    EXTERNAL_SERVICE_URL=http://fastapi-sleep.fastapi-sleep.svc.cluster.local/sleep
+kind: script
+schema:
+  $schema: 'https://json-schema.org/draft/2020-12/schema'
+  type: object
+  properties:
+    scheduling_interval:
+      type: integer
+      description: ''
+      default: 300
+    scheduling_time:
+      type: number
+      description: ''
+      default: null
+    worflow_number:
+      type: integer
+      description: ''
+      default: 1
+  required: []

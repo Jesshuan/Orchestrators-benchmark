@@ -1,0 +1,6 @@
+summary: ''
+display_name: flow_scenar_2
+extra_perms:
+  u/admin: true
+owners:
+  - u/admin

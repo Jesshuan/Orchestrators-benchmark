@@ -1,0 +1,201 @@
+################################################################
+# kube-prometheus-stack
+###############################################################################
+kube-prometheus-stack:
+
+  ###########################################################################
+  # Prometheus
+  ###########################################################################
+  prometheus:
+    enabled: true
+
+    prometheusSpec:
+      retention: 24h
+      scrapeInterval: 15s
+      evaluationInterval: 15s
+
+      # IMPORTANT: observe all namespaces
+      serviceMonitorNamespaceSelector:
+        any: true
+      podMonitorNamespaceSelector:
+        any: true
+
+      # Do not accidentally scrape everything
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+
+      # ADD THIS: Preserve pod_type label globally
+      podMonitorSelector:
+        matchLabels:
+          release: observability-stack
+      
+      serviceMonitorSelector:
+        matchLabels:
+          release: observability-stack
+
+      # Resource control (very important for kind)
+      resources:
+        requests:
+          cpu: 300m
+          memory: 1Gi
+        limits:
+          cpu: 500m
+          memory: 2Gi
+
+      # Reduce TSDB churn
+      walCompression: true
+
+      # Avoid noisy annotations
+      enableAdminAPI: false
+
+      # Persistent storage is NOT required for benchmark runs
+      storageSpec:
+        emptyDir: {}
+
+      additionalScrapeConfigs:
+      - job_name: 'pushgateway'
+        static_configs:
+          - targets: ['observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091']
+
+  ###########################################################################
+  # Alertmanager (disabled – not needed for benchmarks)
+  ###########################################################################
+  alertmanager:
+    enabled: false
+
+  ###########################################################################
+  # Grafana
+  ###########################################################################
+  grafana:
+    enabled: true
+
+    adminUser: admin
+    adminPassword: admin
+
+    defaultDashboardsEnabled: false
+    defaultDashboardsTimezone: utc
+
+    persistence:
+      enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
+
+  ###########################################################################
+  # kube-state-metrics
+  ###########################################################################
+  kubeStateMetrics:
+    enabled: true
+
+  kube-state-metrics:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 150m
+        memory: 256Mi
+
+    # Only metrics useful for benchmarks
+    collectors:
+      - pods
+      - deployments
+      - replicasets
+      - statefulsets
+      - jobs
+      - cronjobs
+      - nodes
+      - namespaces
+
+    # ADD THIS: Enable custom pod labels
+    extraArgs:
+      - --metric-labels-allowlist=pods=[*]
+
+  ###########################################################################
+  # Node Exporter (needed even on kind)
+  ###########################################################################
+  nodeExporter:
+    enabled: true
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 150m
+        memory: 128Mi
+
+  ###########################################################################
+  # kubelet / cAdvisor metrics (CRITICAL)
+  ###########################################################################
+  kubelet:
+    enabled: true
+
+    serviceMonitor:
+      cAdvisor: true
+      probes: true
+
+
+      # ADD THIS: Preserve pod_type label from cAdvisor metrics
+      cAdvisorRelabelings:
+        - sourceLabels: [pod]
+          targetLabel: pod_name
+        - action: labelmap
+          regex: label_pod_type
+          replacement: pod_type
+
+  ###########################################################################
+  # Kubernetes API server metrics (optional but low-cost)
+  ###########################################################################
+  kubeApiServer:
+    enabled: true
+
+  ###########################################################################
+  # Controller-manager & scheduler (disable for kind)
+  ###########################################################################
+  kubeControllerManager:
+    enabled: false
+
+  kubeScheduler:
+    enabled: false
+
+  ###########################################################################
+  # etcd metrics (disable – noisy & irrelevant for orchestrator benchmarks)
+  ###########################################################################
+  kubeEtcd:
+    enabled: false
+
+###############################################################################
+# Prometheus Pushgateway (for task-level timing)
+###############################################################################
+prometheus-pushgateway:
+
+  enabled: true
+
+  service:
+    type: ClusterIP
+    port: 9091
+
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 128Mi
+
+  # Keep it simple, no persistence
+  persistence:
+    enabled: false
+
+###############################################################################
+# Global settings
+###############################################################################
+global:
+  rbac:
+    create: true

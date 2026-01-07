@@ -1,0 +1,82 @@
+summary: io_bound_flow_scenar_2a_bash-4_tasks
+description: >-
+  The scenario 2.a (bash) flow with the 4 "i/o bounds" tasks : deletion existing
+  tables, handle s3 transformation with duckdb, wait external service, copy on
+  postgresdb.
+value:
+  modules:
+    - id: e
+      value:
+        type: script
+        input_transforms:
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          workflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/bash_scripts/task1_delete_s3_scenar_2_bash_python_script
+    - id: f
+      value:
+        type: script
+        input_transforms:
+          last_result:
+            type: javascript
+            expr: results.e
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          workflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/bash_scripts/task2_s3_ingestion_scenar_2_bash_python_script
+    - id: i
+      value:
+        type: script
+        input_transforms:
+          last_result:
+            type: javascript
+            expr: results.f
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          workflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/bash_scripts/task3_wait_external_service_bash_python_script
+    - id: h
+      value:
+        type: script
+        input_transforms:
+          last_result:
+            type: javascript
+            expr: results.i
+          scheduling_interval:
+            type: javascript
+            expr: flow_input.scheduling_interval
+          workflow_number:
+            type: javascript
+            expr: flow_input.workflow_number
+        is_trigger: false
+        path: f/bash_scripts/task4_copy_s3_to_postgres_bash_python_script
+  same_worker: false
+schema:
+  $schema: 'https://json-schema.org/draft/2020-12/schema'
+  type: object
+  order:
+    - scheduling_interval
+    - workflow_number
+  properties:
+    scheduling_interval:
+      type: string
+      description: ''
+      default: ''
+    workflow_number:
+      type: string
+      description: ''
+      default: ''
+  required: []
+tag: custom-python-project

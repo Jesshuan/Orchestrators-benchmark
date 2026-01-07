@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: windmill-observer
+  namespace: windmill
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: windmill-observer
+  template:
+    metadata:
+      labels:
+        app: windmill-observer
+    spec:
+      containers:
+      - name: windmill-observer
+        image: w-test-observer:11
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: WINDMILL_URL
+          value: "http://windmill-app.windmill.svc.cluster.local:8000" # internal service DNS
+        - name: WINDMILL_TOKEN
+          value: CEfU0PketPQNP6X2g0EQuvVw3oodkcEE

@@ -1,0 +1,22 @@
+postgresql:
+  # -- enabled included Postgres container for demo purposes only using cloudnative-pg
+  enabled: true
+  resources:
+    limits:
+      memory: "2Gi"
+  auth:
+    postgresUser: postgres
+    postgresPassword: windmill
+    database: windmill
+  # -- persistence configuration for PostgreSQL data
+  persistence:
+    # -- enable persistence using PVC
+    enabled: true
+    # -- storage class for the PVC (leave empty for default)
+    storageClass: ""
+    # -- access mode for the PVC
+    accessMode: ReadWriteOnce
+    # -- size of the PVC
+    size: 50Gi
+  podLabels:
+    pod_type: permanent_pod
