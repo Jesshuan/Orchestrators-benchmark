@@ -4,9 +4,12 @@ name: bench-orchestrator
 nodes:
   - role: control-plane
     extraPortMappings:
-      - containerPort: 80   # inside the kind node
-        hostPort: 80        # on your machine
+      - containerPort: 80   
+        hostPort: 80   
         protocol: TCP
       - containerPort: 443
         hostPort: 443
         protocol: TCP
+    extraMounts:
+      - hostPath: ${DATA_PATH} 
+        containerPath: /data

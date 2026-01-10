@@ -2,7 +2,13 @@
 
 ### Creating the Kind cluster
 
-```kind create cluster --config config_cluster.yml```
+From this root repo folder :
+
+```export DATA_PATH="${PWD}/data"```
+
+envsubst < config_cluster.yaml | kind create cluster --config=-
+
+```envsubst < config_cluster.yaml | kind create cluster --config=-```
 
 
 
@@ -24,6 +30,8 @@
 
 1) Port-forward you grafana pod on port 3000 and connect to it : http://localhost:3000
 
+Initial login : admin / admin . (You have to change the password at the first connexion)
+
 2) Go to your profile on the top-right corner -> Profile ... and generate a Service account with an "admin" token
 
 3) setup a python env (conda, pipenv, what you want...) and ```pip install grafana-backup```
@@ -34,7 +42,7 @@
 
 
 ```export GRAFANA_URL=http://localhost:3000```
-``` export GRAFANA_TOKEN=[...your_admin_token...]```
+``` export GRAFANA_TOKEN=your_admin_token here```
 
 5) ```grafana-backup restore _OUTPUT_/*.gz```
 
@@ -60,16 +68,14 @@ It will generate a 'users.parquet' file inside the same folder.
 
 ```helm install external-db . -n external-db --create-namespace --values values.yaml```
 
-Port/forward the WebUI S3 Minio service (with k9s or ```kubectl apply port-forward .... ```),
+See the logs of the minio instance and search for the WebUI port like http://127.0.0.1:33456 
 
-go to localhost:33275
-
-(see the los of the pod if needed to choose the right port)
+Port/forward the WebUI S3 Minio service with this port... and go to it.
 
 Login/password :  minioadmin/minioadmin
-And create two buckets 'input_data' and 'output_data'
+And create two buckets 'input-data' and 'output-data'
 
-From the 'input_data' bucket, download by hand the parquet file 'users.parquet'.
+From the 'input-data' bucket, download by hand the parquet file 'users.parquet'.
 
 
 ### Deploying the external fastAPI micro-service
@@ -99,16 +105,13 @@ First, deploy the custom postgresdb for windmill :
 
 ```helm install windmill-postgres . -n windmill --create-namespace --values values.yaml```
 
-
-
-
-
-
 #### Benchmark variant 1:
 
 (scenario 1 & 2.a)
 
+Add the official helm chart :
 
+```helm repo add windmill https://windmill-labs.github.io/windmill-helm-charts/```
 
 Prepare the custom python scripts docker image :
 
@@ -126,9 +129,107 @@ We have to set 0 for each replica inside the worker group
 
 ```helm install mywindmill windmill/windmill -n windmill --values values_variant_1.yaml```
 
-- and the custom worker additionnal chart values for deploying the 4 custom python deps additionnals workers 
 
-```helm install windmill-custom-worker windmill/windmill -n windmill --values values_custom_worker.yaml```
+
+#### Benchmark variant 2:
+
+(scenario 2.b)
+
+Whe just have to deploy the official windmill helm chart with 4 'defaults' workers (not custom)
+
+```cd orchestrators-helm-deployments/windmill```
+
+```helm install mywindmill windmill/windmill -n windmill --values values_variant_2.yaml```
+
+
+
+### Set-up windmill & the benchmark code
+
+Login : admin@windmill.dev / changeme
+
+Add a first workspace "bench-orchestrator"...
+This workspace 
+
+#### 1 - Add the workspace to you local machine
+
+Download the cli...
+
+```wmill workspace add```
+
+? Name this workspace: › bench-orchestrator
+? Enter the ID of this workspace (bench-orchestrator) › bench-orchestrator
+? Enter the Remote URL (https://app.windmill.dev/) › http://localhost:8000/
+? How do you want to login › Browser 
+
+(OR TOKEN method)
+
+
+#### 2 - Load the windmill scripts & workflows
+
+```cd windmill-code```
+
+```wmill sync push --include-schedules```
+
+You'll retrived all the existing experiments components : scripts, flows, and schedules...
+Now refer you to the official documentation to play with all theses components.
+
+
+
+
+
+
+
+### Airflow orchestrator deployment
+
+
+```kubectl create namespace airflow```
+
+First, deploy the PV / PVC volume to sync the dags from your local folder to the airflow instance :
+
+Within your current session (path to customize):
+
+```cd orchestrators-helm-deployments/airflow/pvc-claim``
+
+```kubectl apply -f pv_pvc_values.yaml ```
+
+
+There is two version to compare with Airflow :
+- with CeleryExecutor (workers are permanently up)
+- with KubernetesExecutor (totally ephemeral workers, one task per up pod)
+
+#### Airflow Benchmark ** CeleryExecutor **
+
+
+```helm repo add apache-airflow https://airflow.apache.org```
+
+
+#### variant 1:
+
+(scenario 1 & 2.a)
+
+Prepare the custom python scripts docker image :
+
+```docker build -t airflow-bench-project -f ./docker-orchestrator-factory/airflow-docker-image/Dockerfile  .```
+
+Load it to the kind cluster docker registry :
+
+```kind load docker-image airflow-bench-project:latest -n bench-orchestrator```
+
+
+- deploy the helm chart with these variant values :
+
+```cd orchestrators-helm-deployments/airflow```
+
+```helm install airflow3 apache-airflow/airflow -n airflow -values values_celery_variant_1.yaml```
+
+
+
+
+
+
+
+
+
 
 
 #### Benchmark variant 2:

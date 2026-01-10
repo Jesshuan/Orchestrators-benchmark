@@ -30,7 +30,7 @@ windmill:
   # -- windmill app image tag, will use the App version if not defined
   tag: "latest"
   # -- windmill image tag, will use the Acorresponding ee or ce image from ghcr if not defined. Do not include tag in the image name.
-  image: ""
+  image: "windmill-bench-project"
 
   imagePullPolicy: IfNotPresent
 
@@ -122,6 +122,70 @@ windmill:
 
       # -- Extra environment variables to apply to the pods
       extraEnv: []
+      # -- Extra sidecar containers
+      extraContainers: []
+      mode: "worker"
+
+      # -- Init containers
+      initContainers: []
+      volumes: []
+      volumeMounts: []
+
+      # -- Volume claim templates. Only applies when controller is "StatefulSet"
+      volumeClaimTemplates: []
+
+      # -- command override
+      command: []
+
+      # -- mount the docker socket inside the container to be able to run docker command as docker client to the host docker daemon
+      exposeHostDocker: false
+
+    - name: "custom-python-project"
+      # -- Controller to use. Valid options are "Deployment" and "StatefulSet"
+      controller: "Deployment"
+
+      replicas: 4
+      # -- Annotations to apply to the pods
+      annotations: {}
+
+      # -- If a job is being ran, the container will wait for it to finish before terminating until this grace period
+      terminationGracePeriodSeconds: 604800
+
+      # -- Labels to apply to the pods
+      labels:
+        pod_type: ephemeral_worker
+
+      # -- Node selector to use for scheduling the pods
+      nodeSelector: {}
+
+      # -- Tolerations to apply to the pods
+      tolerations: []
+
+      # -- Host aliases to apply to the pods (overrides global hostAliases if set)
+      hostAliases: []
+
+      # -- Security context to apply to the container
+      podSecurityContext:
+        # -- run as user. The default is 0 for root user
+        runAsUser: 0
+        # -- run explicitly as a non-root user. The default is false.
+        runAsNonRoot: false
+      # -- Security context to apply to the pod
+      containerSecurityContext: {}
+
+      # -- Affinity rules to apply to the pods
+      affinity: {}
+
+      # -- Resource limits and requests for the pods
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
+
+      # -- Extra environment variables to apply to the pods
+      extraEnv:
+        - name: WORKER_TAGS
+          value: "custom-python-project"
       # -- Extra sidecar containers
       extraContainers: []
       mode: "worker"

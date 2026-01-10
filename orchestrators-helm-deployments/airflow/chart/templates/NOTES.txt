@@ -1,0 +1,289 @@
+{{/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+*/}}
+
+
+Thank you for installing Apache {{ title .Chart.Name }} {{ .Values.airflowVersion }}!
+
+Your release is named {{ .Release.Name }}.
+
+{{- if or .Values.ingress.web.enabled .Values.ingress.flower.enabled .Values.ingress.enabled }}
+You can now access your service(s) by following defined Ingress urls:
+
+{{- if .Values.ingress.web.host }}
+
+DEPRECATION WARNING:
+   `ingress.web.host` has been renamed to `ingress.web.hosts` and is now an array.
+   Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if .Values.ingress.web.tls }}
+
+DEPRECATION WARNING:
+   `ingress.web.tls` has been renamed to `ingress.web.hosts[*].tls` and can be set per host.
+   Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if .Values.ingress.flower.host }}
+
+DEPRECATION WARNING:
+   `ingress.flower.host` has been renamed to `ingress.flower.hosts` and is now an array.
+   Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+
+{{- if .Values.ingress.flower.tls }}
+
+DEPRECATION WARNING:
+   `ingress.flower.tls` has been renamed to `ingress.flower.hosts[*].tls` and can be set per host.
+   Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if .Values.ingress.enabled }}
+
+DEPRECATION WARNING:
+   `ingress.enabled` has been deprecated. There are now separate flags to control the webserver and
+   flower individually, ``ingress.web.enabled`` and ``ingress.flower.enabled``.
+   Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if and .Values.webserver.enabled (or .Values.ingress.web.enabled .Values.ingress.enabled) }}
+Airflow Webserver:
+{{- range .Values.ingress.web.hosts | default (list .Values.ingress.web.host) }}
+      {{- $tlsEnabled := $.Values.ingress.web.tls.enabled -}}
+      {{- $hostname := $.Values.ingress.web.host -}}
+      {{- $path := $.Values.ingress.web.path -}}
+      {{- if . | kindIs "string" | not }}
+      {{- $hostname = .name -}}
+      {{- if .tls }}
+      {{- $tlsEnabled = .tls.enabled -}}
+      {{- end }}
+      {{- end }}
+      http{{ if $tlsEnabled }}s{{ end }}://{{ (tpl $hostname $) }}{{ $path }}{{ if (hasSuffix "/" $path) | not }}/{{ end }}
+{{- end }}
+{{- end }}
+{{- if and (or .Values.ingress.flower.enabled .Values.ingress.enabled) (or (contains "CeleryExecutor" .Values.executor) (contains "CeleryKubernetesExecutor" .Values.executor)) }}
+Flower Dashboard:
+{{- range .Values.ingress.flower.hosts | default (list .Values.ingress.flower.host) }}
+      {{- $tlsEnabled := $.Values.ingress.flower.tls.enabled -}}
+      {{- $hostname := $.Values.ingress.flower.host -}}
+      {{- $path := $.Values.ingress.flower.path -}}
+      {{- if . | kindIs "string" | not }}
+      {{- $hostname = .name -}}
+      {{- if .tls }}
+      {{- $tlsEnabled = .tls.enabled -}}
+      {{- end }}
+      {{- end }}
+      http{{ if $tlsEnabled }}s{{ end }}://{{ (tpl $hostname $) }}{{ $path }}{{ if (hasSuffix "/" $path) | not }}/{{ end }}
+{{- end }}
+{{- end }}
+{{- else }}
+You can now access your dashboard(s) by executing the following command(s) and visiting the corresponding port at localhost in your browser:
+
+{{- if semverCompare "<3.0.0" .Values.airflowVersion }}
+Airflow Webserver:     kubectl port-forward svc/{{ include "airflow.fullname" . }}-webserver {{ .Values.ports.airflowUI }}:{{ .Values.ports.airflowUI }} --namespace {{ .Release.Namespace }}
+{{- else }}
+Airflow API Server:     kubectl port-forward svc/{{ include "airflow.fullname" . }}-api-server {{ .Values.ports.airflowUI }}:{{ .Values.ports.airflowUI }} --namespace {{ .Release.Namespace }}
+{{- end }}
+
+{{- if .Values.flower.enabled }}
+{{- if or (contains "CeleryExecutor" .Values.executor) (contains "CeleryKubernetesExecutor" .Values.executor)}}
+Flower Dashboard:      kubectl port-forward svc/{{ include "airflow.fullname" . }}-flower {{ .Values.ports.flowerUI }}:{{ .Values.ports.flowerUI }} --namespace {{ .Release.Namespace }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+
+{{- if .Values.createUserJob.enabled}}
+Default user (Airflow UI) Login credentials:
+    username: {{ .Values.createUserJob.defaultUser.username }}
+    password: {{ .Values.createUserJob.defaultUser.password }}
+{{- end }}
+
+{{- if .Values.postgresql.enabled }}
+Default Postgres connection credentials:
+    username: {{ .Values.data.metadataConnection.user }}
+    password: {{ .Values.data.metadataConnection.pass }}
+    port: {{ .Values.data.metadataConnection.port }}
+
+{{- end }}
+
+{{- if not .Values.fernetKeySecretName }}
+
+You can get Fernet Key value by running the following:
+
+    echo Fernet Key: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "airflow.fullname" . }}-fernet-key -o jsonpath="{.data.fernet-key}" | base64 --decode)
+
+{{- end }}
+
+{{- if or (contains "KubernetesExecutor" .Values.executor) (contains "CeleryKubernetesExecutor" .Values.executor) }}
+{{- if and (not .Values.logs.persistence.enabled) (eq (lower (tpl .Values.config.logging.remote_logging .)) "false") }}
+
+WARNING:
+    Kubernetes workers task logs may not persist unless you configure log persistence or remote logging!
+    Logging options can be found at: https://airflow.apache.org/docs/helm-chart/stable/manage-logs.html
+    (This warning can be ignored if logging is configured with environment variables or secrets backend)
+
+{{- end }}
+{{- end }}
+
+{{- if and .Values.dags.gitSync.enabled .Values.dags.gitSync.sshKeySecret (not .Values.dags.gitSync.knownHosts)}}
+
+#####################################################
+#  WARNING: You should set dags.gitSync.knownHosts  #
+#####################################################
+
+You are using ssh authentication for your gitsync repo, however you currently have SSH known_hosts verification disabled,
+making you susceptible to man-in-the-middle attacks!
+
+Information on how to set knownHosts can be found here:
+https://airflow.apache.org/docs/helm-chart/stable/production-guide.html#knownhosts
+
+{{- end }}
+
+{{- if .Values.flower.extraNetworkPolicies }}
+
+DEPRECATION WARNING:
+   `flower.extraNetworkPolicies` has been renamed to `flower.networkPolicy.peers`.
+   Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+
+{{- if .Values.webserver.extraNetworkPolicies }}
+
+DEPRECATION WARNING:
+    `webserver.extraNetworkPolicies` has been renamed to `webserver.networkPolicy.peers`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if not (or .Values.webserverSecretKey .Values.webserverSecretKeySecretName .Values.apiSecretKey .Values.apiSecretKeySecretName) }}
+
+{{- if .Values.securityContext }}
+
+ DEPRECATION WARNING:
+    `securityContext` has been renamed to `securityContexts`, to be enabled on container and pod level.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if ne (int .Values.workers.replicas) 1 }}
+
+ DEPRECATION WARNING:
+    `workers.replicas` has been renamed to `workers.celery.replicas`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if not (empty .Values.workers.revisionHistoryLimit) }}
+
+ DEPRECATION WARNING:
+    `workers.revisionHistoryLimit` has been renamed to `workers.celery.revisionHistoryLimit`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if ne (.Values.workers.args | toJson) (list "bash" "-c" "exec \\\nairflow {{ semverCompare \">=2.0.0\" .Values.airflowVersion | ternary \"celery worker\" \"worker\" }}" | toJson) }}
+
+ DEPRECATION WARNING:
+    `workers.args` has been renamed to `workers.celery.args`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if not .Values.workers.livenessProbe.enabled }}
+
+ DEPRECATION WARNING:
+    `workers.livenessProbe.enabled` has been renamed to `workers.celery.livenessProbe.enabled`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if ne (int .Values.workers.livenessProbe.initialDelaySeconds) 10 }}
+
+ DEPRECATION WARNING:
+    `workers.livenessProbe.initialDelaySeconds` has been renamed to `workers.celery.livenessProbe.initialDelaySeconds`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if ne (int .Values.workers.livenessProbe.timeoutSeconds) 20 }}
+
+ DEPRECATION WARNING:
+    `workers.livenessProbe.timeoutSeconds` has been renamed to `workers.celery.livenessProbe.timeoutSeconds`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if ne (int .Values.workers.livenessProbe.failureThreshold) 5 }}
+
+ DEPRECATION WARNING:
+    `workers.livenessProbe.failureThreshold` has been renamed to `workers.celery.livenessProbe.failureThreshold`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if ne (int .Values.workers.livenessProbe.periodSeconds) 60 }}
+
+ DEPRECATION WARNING:
+    `workers.livenessProbe.periodSeconds` has been renamed to `workers.celery.livenessProbe.periodSeconds`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{- if not (empty .Values.workers.livenessProbe.command) }}
+
+ DEPRECATION WARNING:
+    `workers.livenessProbe.command` has been renamed to `workers.celery.livenessProbe.command`.
+    Please change your values as support for the old name will be dropped in a future release.
+
+{{- end }}
+
+{{ if (semverCompare ">=3.0.0" .Values.airflowVersion) }}
+#####################################################
+#  WARNING: You should set a static API secret key  #
+#####################################################
+{{ else }}
+###########################################################
+#  WARNING: You should set a static webserver secret key  #
+###########################################################
+{{ end }}
+{{- $serverKind := ternary "API" "webserver" (semverCompare ">=3.0.0" .Values.airflowVersion) }}
+You are using a dynamically generated {{ $serverKind }} secret key, which can lead to
+unnecessary restarts of your Airflow components.
+
+Information on how to set a static {{ $serverKind }} secret key can be found here:
+https://airflow.apache.org/docs/helm-chart/stable/production-guide.html#api-secret-key
+
+{{- end }}
+
+{{- if or .Values.postgresql.postgresqlUsername .Values.postgresql.postgresqlPassword }}
+
+   {{ fail "postgresql.postgresqlUsername and postgresql.postgresqlPassword are no longer supported. If you wish to use the 'postgres' user, set its password with postgresql.auth.postgresPassword. If you wish to create a different user, do so with postgresql.auth.username and postgresql.auth.password." }}
+
+{{- end }}
+
+{{- if ne .Values.executor (tpl .Values.config.core.executor $) }}
+   {{ fail "Please configure the executor with `executor`, not `config.core.executor`." }}
+{{- end }}
