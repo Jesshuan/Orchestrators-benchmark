@@ -4,7 +4,7 @@ ARG PROJECT_NAME=bench-python-project
 
 # ---- System deps ----
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates \
+    curl ca-certificates jq \
     && rm -rf /var/lib/apt/lists/*
 
 # ---- Install uv ----
