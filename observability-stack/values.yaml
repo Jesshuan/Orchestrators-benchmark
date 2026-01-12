@@ -11,8 +11,8 @@ kube-prometheus-stack:
 
     prometheusSpec:
       retention: 24h
-      scrapeInterval: 15s
-      evaluationInterval: 15s
+      scrapeInterval: 5s
+      evaluationInterval: 5s
 
       # IMPORTANT: observe all namespaces
       serviceMonitorNamespaceSelector:
