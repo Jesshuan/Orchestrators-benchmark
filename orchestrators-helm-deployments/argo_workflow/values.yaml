@@ -1,0 +1,25 @@
+# argo-values.yaml
+singleNamespace: false # controller will not be restricted to only the install namespace
+
+  
+images:
+  pullPolicy: IfNotPresent
+
+
+controller:
+  # explicit list of namespaces the controller should operate in:
+  workflowNamespaces:
+    - team-a
+  parallelism: 4 # max number of workflows to run in parallel
+  podLabels:
+    pod_type: permanent_pod
+
+server:
+  # run server in namespaced mode so it respects namespace-scoped install
+  podLabels:
+    pod_type: permanent_pod
+  extraArgs:
+    # (optional) enable server auth mode you prefer, e.g. --auth-mode=server or sso
+    - --auth-mode=client
+
+
