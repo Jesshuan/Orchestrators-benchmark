@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow                  # new type of k8s spec
+metadata:
+  generateName: hello-world-test    # name of the workflow spec
+spec:
+  entrypoint: hello-world       # invoke the hello-world template
+  #serviceAccountName: global-awf-executor
+  templates:
+    - name: hello-world         # name of the template
+      container:
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: [ echo ]
+        args: [ "hello wooooooooooooorld !!!" ]
+        resources: # limit the resources
+          limits:
+            memory: 32Mi
+            cpu: 100m

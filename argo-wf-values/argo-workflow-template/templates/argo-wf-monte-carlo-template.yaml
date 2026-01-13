@@ -1,0 +1,106 @@
+# workflow-template-policy.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: argo-wf-monte-carlo-template
+spec:
+  entrypoint: monte-carlo-task
+  templates:
+  - name: monte-carlo-task
+    inputs:
+      parameters:
+      - name: scheduling_interval
+        default: 300
+      - name: workflow_number
+        default: 1
+      - name: task
+        default: "task_1"
+      - name: last_result
+        default: "{}"
+    script:
+      podMetadata:
+        labels:
+          pod_type: ephemeral_worker
+      image: python-bench-project:latest
+      imagePullPolicy: IfNotPresent
+      env:
+      - name: PUSHGATEWAY_URL
+        value: http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
+
+      - name: MINIO_ENDPOINT
+        value: "http://minio.external-db.svc.cluster.local:9000"
+
+      - name: OUTPUT_BUCKET
+        value: "output-data"
+
+      - name: INPUT_BUCKET
+        value: "input-data"
+
+      - name: INPUT_KEY
+        value: "users.parquet"
+
+      - name: MINIO_ACCESS_KEY
+        value: "minioadmin"
+
+      - name: MINIO_SECRET_KEY
+        value: "minioadmin"
+
+      - name: PG_HOST
+        value: "postgres.external-db.svc.cluster.local"
+
+      - name: PG_DB
+        value: "benchmark"
+
+      - name: PG_USER
+        value: "benchmark"
+
+      - name: PG_PASSWORD
+        value: "benchmark"
+
+      - name: EXTERNAL_SERVICE_URL
+        value: "http://fastapi-sleep.fastapi-sleep.svc.cluster.local/sleep"
+      resource:
+        limits:
+          memory: {{ .Values.monte_carlo_task_pods.memory_limits }}
+          cpu: {{ .Values.monte_carlo_task_pods.cpu_limits }}
+      command: ["bash"]
+      source: |
+            set -e
+
+            scheduling_interval="{{`{{inputs.parameters.scheduling_interval}}`}}"
+            workflow_number="{{`{{inputs.parameters.workflow_number}}`}}"
+            task="{{`{{inputs.parameters.task}}`}}"
+
+            last_result=$(printf '%s' '{{`{{inputs.parameters.last_result}}`}}')
+
+            echo "scheduling_interval: $scheduling_interval"
+            echo "workflow_number: $workflow_number"
+            echo "task: $task"
+            echo "last result: $last_result"
+
+            end_time=$(echo "$last_result" | jq -r '.end_ts // empty')
+
+            if [[ -n "$end_time" ]]; then
+              echo "end_time value $end_time retrieved from last_result..."
+              python3 /app/src/scripts/monte_carlo.py \
+                -st "$end_time" \
+                -wf "$workflow_number" \
+                -t "$task" \
+                | awk '/^{/{json=$0} END{print json}' > /tmp/result.json
+            else
+              echo "No end_ts found, using scheduling_interval"
+              python3 /app/src/scripts/monte_carlo.py \
+                -si "$scheduling_interval" \
+                -wf "$workflow_number" \
+                -t "$task" \
+                | awk '/^{/{json=$0} END{print json}' > /tmp/result.json
+            fi
+
+            echo "Done."
+            echo "Output result stored to /tmp/result.json"
+
+    outputs:
+      parameters:
+        - name: result
+          valueFrom:
+            path: /tmp/result.json

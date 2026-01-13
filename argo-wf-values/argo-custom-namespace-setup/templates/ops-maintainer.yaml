@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Values.namespace }}-ops-maintainer
+automountServiceAccountToken: true
+
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.namespace }}-ops-maintainer-role
+  namespace: {{ .Values.namespace }}
+rules:
+  # k8s standard APIs
+  - apiGroups:
+      - ""
+    resources:
+      - events
+      - pods
+      - pods/log
+      - pods/exec
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  # Argo APIs. See also https://github.com/argoproj/argo-workflows/blob/main/manifests/cluster-install/workflow-controller-rbac/workflow-aggregate-roles.yaml#L4
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - eventsources
+      - sensors
+      - workflows
+      - workfloweventbindings
+      - workflowtemplates
+      - clusterworkflowtemplates
+      - cronworkflows
+      - workflowtaskresults
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.namespace }}-ops-maintainer-role-binding
+  namespace: {{ .Values.namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.namespace }}-ops-maintainer
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: {{ .Values.namespace }}-ops-maintainer-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.namespace }}-ops-maintainer-secret-token
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/service-account.name: {{ .Values.namespace }}-ops-maintainer
+type: kubernetes.io/service-account-token

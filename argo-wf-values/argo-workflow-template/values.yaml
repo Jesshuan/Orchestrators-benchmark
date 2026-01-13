@@ -1,0 +1,8 @@
+io_bound_tasks_pods:
+  memory_limits: "6Gi"
+  cpu_limits: "500m"
+  default_python_script_path: "/app/src/scripts/task1_delete_s3_and_tables.py"
+
+monte_carlo_task_pods:
+  memory_limits: "6Gi"
+  cpu_limits: "500m"

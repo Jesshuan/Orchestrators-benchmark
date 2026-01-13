@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: cron-wf-scenar-1-mc-1-task-2
+  namespace: team-a
+spec:
+  schedules:
+  - '*/5 * * * *'
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  workflowSpec:
+    serviceAccountName: team-a-awf-executor
+    podMetadata:
+      labels:
+        pod_type: ephemeral_worker
+    entrypoint: cron-wf-scenar-1-mc-1-task-dag
+    arguments:
+      parameters:
+        - name: workflow_number
+          value: "2"
+        - name: scheduling_interval
+          value: "300"
+
+    templates:
+      - name: cron-wf-scenar-1-mc-1-task-dag
+        inputs:
+          parameters:
+            - name: workflow_number
+            - name: scheduling_interval
+        dag:
+          tasks:
+            - name: monte-carlo-task-1
+              templateRef:
+                clusterScope: true
+                name: argo-wf-monte-carlo-template
+                template: monte-carlo-task
+              arguments:
+                parameters:
+                  - name: workflow_number
+                    value: "{{inputs.parameters.workflow_number}}"
+                  - name: scheduling_interval
+                    value: "{{inputs.parameters.scheduling_interval}}"
+                  - name: task
+                    value: "task_1"
+                  - name: last_result
+                    value: "{}"

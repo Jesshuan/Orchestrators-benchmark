@@ -1,0 +1,6 @@
+apiVersion: v2
+name: argo-workflow-tasks-template
+type: application
+version: 0.0.1
+
+description: Custom deployed argo workflow tasks template for benchmarking various orchestrators
