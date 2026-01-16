@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: temporal-schedules-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""  
+  hostPath:
+    path: /data/temporal-schedules
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: temporal-schedules-pvc
+  namespace: temporal
+spec:
+  accessModes:
+    - ReadWriteOnce  
+  storageClassName: "" 
+  volumeName: temporal-schedules-pv
+  resources:
+    requests:
+      storage: 1Gi

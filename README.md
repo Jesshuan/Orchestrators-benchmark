@@ -1,6 +1,10 @@
+# Orchestrator Benchmark
+## AIRFLOW, Argo Workflow, Windmill, Temporal.io
+-----------------
 
+## Installation
 
-### Creating the Kind cluster
+### Create the Kind cluster
 
 From this root repo folder :
 
@@ -93,7 +97,7 @@ From the 'input-data' bucket, download by hand the parquet file 'users.parquet'.
 ```kubectl apply -f fastapi-sleep-service.yaml```
 
 
-
+--------------
 
 ### Windmill orchestrator deployment
 
@@ -143,12 +147,14 @@ Whe just have to deploy the official windmill helm chart with 4 'defaults' worke
 
 
 
-### Set-up windmill & the benchmark code
+#### Set-up windmill & the benchmark code
+
+portforward the windmill-server... and go to http://localhost:8000
 
 Login : admin@windmill.dev / changeme
 
 Add a first workspace "bench-orchestrator"...
-This workspace 
+This workspace will be empty for now.
 
 #### 1 - Add the workspace to you local machine
 
@@ -176,7 +182,7 @@ Now refer you to the official documentation to play with all theses components.
 
 
 
-
+--------------
 
 
 ### Airflow orchestrator deployment
@@ -205,7 +211,7 @@ There is two version to compare with Airflow :
 
 #### variant 1:
 
-(scenario 1 & 2.a)
+(scenario 1, 2.a & 2.b)
 
 Prepare the custom python scripts docker image :
 
@@ -224,48 +230,145 @@ Load it to the kind cluster docker registry :
 
 
 
+#### First connexion to Airflow 3 WebUI
+
+portforward the airflow-server... and got to http://localhost:8080
+
+Login : admin / admin
+
+Your dags should be already here at your first connexion, according to the volume mapping between : 
+local machine <> kind node <> airflow instances (with k8s pv, pvc)
+You can manage it directly.
 
 
 
+--------------
+
+### Argo Workflow orchestrator deployment
+
+
+[all the commands should be launched from the folder 'argoworkflow' inside the project]
+
+#### Create the different namespaces :
+
+```kubectl create namespace argo-wf```
+
+#### And the fist namespace entity managed by argo workflow :
+
+
+```kubectl create namespace team-a```
+
+Yes, we experiment heare a 'multi-tenancy' setup, which is a good poitn for Argo.
 
 
 
+#### Deploy argo with Helm
+
+First, define you own pull policy values for all images in argo/pullpolicy_values.yaml
+=> (default) IfNotPresent
+
+Download the offcial helm chart:
+
+```helm repo add argo https://argoproj.github.io/argo-helm```
+
+```helm repo update```
+
+And install the realease with the 'multi-tenancy' setup and the 'auth-server=client' mode (for testing):
+
+```cd orchestrators-helm-deployments/argo_workflow ```
+
+```helm install argo-wf argo/argo-workflows --version 0.45.26 -n argo-wf --values values.yaml ```
 
 
-#### Benchmark variant 2:
-
-(scenario 2.b)
-
-Whe just have to deploy the official windmill helm chart with 4 'defaults' workers
-
-```cd orchestrators-helm-deployments/windmill```
-
-```helm install mywindmill windmill/windmill -n windmill --values values_variant_2.yaml```
+#### Install the Argo Workflow CLI
 
 
-
-### First connexion to Windmill
-
-Login : ... / changeme
-
-Add a first workspace "bench-orchestrator"
+Go to : https://github.com/argoproj/argo-workflows/releases/
 
 
-### - Load the windmill scripts & workflows
+---
 
 
-#### 1 - Add the workspace to you local machine
+#### RBAC in managed-namespace mode:
 
-Download the cli...
+#### Argo executor (for each namespace)
 
-```wmill workspace add```
+For each namespace, like the 'team-a' namespace, an argo executor serviceaccount must to access to all workflow operations...
+We will deploy, for each namespace, a custom helm chart to create this serviceaccount and role.
 
-? Name this workspace: › bench-orchestrator
-? Enter the ID of this workspace (bench-orchestrator) › bench-orchestrator
-? Enter the Remote URL (https://app.windmill.dev/) › http://localhost:8000/
-? How do you want to login › Browser 
+Example with 'team-a' namespace :
 
-(OR TOKEN method)
+```cd argo-wf-values/argo-custom-napespace-setup```
+
+```helm install argo-custom . -n team-a --values values_team_a.yaml```
+
+Test a first workflow launching with this service account :
+
+```argo submit workflow-test/wf-hello-world.yaml --serviceaccount team-a-awf-executor -n team-a --watch```
+
+At the end, we get an error but it does'nt matter.... Check the pod existence and the log with K9s.
+
+
+#### Argo (humain) Ops (for each namespace)
+
+We also need a 'human' service account to allow the UI connexion, re-submit any pod for testing, etc.
+This service account, and the associated role and role-binding object have already been deployed via the custom helm chart.
+Test a first workflow launching with this service account :
+
+```argo submit workflow-test/wf-hello-world.yaml --serviceaccount team-a-ops-maintainer -n team-a --watch```
+
+
+---
+#### Test the access with this user ops/maintainer account ('auth-mode=client'):
+
+Get a ephemeral token for this ops/maintainer user's secret :
+
+1) ```ARGO_TOKEN="Bearer $(kubectl get secret team-a-ops-maintainer-secret-token -n team-a -o=jsonpath='{.data.token}' | base64 --decode)"```
+```echo $ARGO_TOKEN```
+
+You should see a temporary token.
+
+2) Fill this token on the UI login page
+
+You should be connected now as the team-a ops/maintainer  user...
+
+
+#### Workflow templates deployment
+
+- Deployment of the argo-workflow-template via a custom helm chart :
+
+```cd argo-wf-values/argo-workflow-template```
+
+```helm install argo-workflow-tasks-template . --values values.yaml```
+
+#### CronWorkflow deployment 
+(scenario 1, 2 a )
+
+```cd argo-wf-values/cron-workflow-generation```
+
+```argo cron create ./scenar_2/cron_wf_scenar_2_a_io_bound_4_tasks_11.yaml -n team-a```
+
+
+-------------------
+
+
+### Temporal orchestrator deployment
+
+#### Deploy the custom postgres database for Temporal
+
+deploiement custom postgres 
+
+```cd orchestrators-helm-deployments/temporal/postgres-custom```
+
+```helm install custom-temporal-postgres-db . -n temporal --create-namespace --values values.yaml```
+
+From inside the database :
+
+```CREATE DATABASE temporal_visibility WITH OWNER=temporal_user;```
+
+helm install --repo https://go.temporal.io/helm-charts --version '>=1.0.0-0' -n temporal -f values.yaml temporal temporal --timeout 900s
+
+
 
 
 

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: temporal-workers
+description: Helm chart to deploy Temporal workers
+type: application
+version: 0.1.0
+appVersion: "1.0"

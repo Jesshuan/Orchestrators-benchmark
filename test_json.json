@@ -1,0 +1,28 @@
+{
+    "schedule": {
+      "spec": {
+        "interval": [
+          {
+            "interval": "300s",
+            "phase": "0s"
+          }
+        ]
+      },
+      "action": {
+        "startWorkflow": {
+          "workflowId": "wf-monte-carlo-1-task-4-002-test",
+          "workflowType": {
+            "name": "monte_carlo_workflow"
+          },
+          "taskQueue": {
+            "name": "queue-team-a-4",
+            "kind": "TASK_QUEUE_KIND_NORMAL"
+          }
+        }
+      },
+      "policies": {
+        "overlapPolicy": "SCHEDULE_OVERLAP_POLICY_SKIP",
+        "catchupWindow": "31536000s"
+      }
+    }
+}

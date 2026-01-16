@@ -1,0 +1,43 @@
+server:
+  podLabels:
+    pod_type: permanent_pod
+  config:
+    persistence:
+      datastores:
+        default:
+          sql:
+            pluginName: postgres12
+            driverName: postgres12
+            databaseName: temporal
+            connectAddr: "temporal-postgresql.temporal.svc.cluster.local:5432"
+            connectProtocol : "tcp"
+            user: temporal_user
+            password: temporal
+        visibility:
+          sql:
+            pluginName: postgres12
+            driverName: postgres12
+            databaseName: temporal_visibility
+            connectAddr: "temporal-postgresql.temporal.svc.cluster.local:5432"
+            connectProtocol : "tcp"
+            user: temporal_user
+            password: temporal
+    namespaces:
+      # Enable this to create namespaces
+      create: true
+      namespace:
+        - name: team-a
+          retention: 3d
+
+web:
+  podLabels:
+    pod_type: permanent_pod
+  additionalEnv:
+    - name: TEMPORAL_CORS_ORIGINS
+      value: "http://localhost:8080"
+    - name: TEMPORAL_CSRF_COOKIE_INSECURE
+      value: "true" 
+
+admintools:
+  enabled: false
+  

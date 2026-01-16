@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: temporal-generate-schedules-scenar-1
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: temporal-cli
+          image: temporalio/admin-tools:1.29.1-tctl-1.18.4-cli-1.5.0
+          env:
+            - name: TEMPORAL_SERVER_ADDRESS
+              value: temporal-frontend.temporal.svc.cluster.local:7233
+            - name: TEMPORAL_NAMESPACE
+              value: team-a
+            - name: SCHEDULE_DIR
+              value: /schedules/schedules-scenar-1
+          command:
+            - sh
+            - -e
+            - -c
+            - |
+              for file in "$SCHEDULE_DIR"/*.json; do
+                [ -e "$file" ] || continue
+
+                echo "Processing schedule: $file"
+
+                sleep 5
+
+                # Extract required flags from JSON
+                schedule_id=$(jq -r '.schedule_id' "$file")
+                task_queue=$(jq -r '.task_queue' "$file")
+                type=$(jq -r '.type' "$file")
+                interval=$(jq -r '.interval' "$file")
+                input_data=$(jq -c '.input_data' "$file")
+
+                echo "Creating schedule-id=$schedule_id task-queue=$task_queue type=$type interval=$interval input_data=$input_data"
+
+                temporal schedule create \
+                  --address "$TEMPORAL_SERVER_ADDRESS" \
+                  --namespace "$TEMPORAL_NAMESPACE" \
+                  --schedule-id "$schedule_id" \
+                  --task-queue "$task_queue" \
+                  --type "$type" \
+                  --interval "$interval" \
+                  --input "$input_data" \
+                  --paused
+
+              echo "Generation OK."
+              echo "-----------------"
+              done
+              sleep 2
+
+              echo "Done."
+
+          volumeMounts:
+            - name: schedules
+              mountPath: /schedules
+      volumes:
+        - name: schedules
+          persistentVolumeClaim:
+            claimName: temporal-schedules-pvc

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: temporal-worker
+  labels:
+    app.kubernetes.io/name: temporal-worker
+spec:
+  serviceName: temporal-worker
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: temporal-worker
+        {{- range $key, $value := .Values.worker.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python3", "/app/temporal-worker/src/run_worker.py"]
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: TASK_QUEUE_PREFIX
+              value: {{ .Values.taskQueuePrefix | quote }}
+            - name: TEMPORAL_SERVER_ADDRESS
+              value: {{ .Values.temporalServerAddress | quote }}
+            - name: TEMPORAL_NAMESPACE
+              value: {{ .Values.temporalNamespace | quote }}
+            {{- range $key, $value := .Values.worker.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}

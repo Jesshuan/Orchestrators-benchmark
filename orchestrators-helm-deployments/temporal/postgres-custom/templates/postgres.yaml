@@ -1,0 +1,100 @@
+{{- if .Values.postgresql.enabled }}
+{{- if .Values.postgresql.persistence.enabled }}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: temporal-postgresql
+spec:
+  serviceName: temporal-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-postgresql-app
+  template:
+    metadata:
+      labels:
+        app: temporal-postgresql-app
+{{- with .Values.postgresql.podLabels }}
+{{ toYaml . | nindent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:12
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.postgresql.auth.postgresUser }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgresql.auth.postgresPassword }}
+        - name: POSTGRES_DB
+          value: temporal
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        ports:
+        - containerPort: 5432
+        resources:
+{{ toYaml .Values.postgresql.resources | nindent 10 }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - {{ .Values.postgresql.persistence.accessMode }}
+      {{- if .Values.postgresql.persistence.storageClass }}
+      storageClassName: {{ .Values.postgresql.persistence.storageClass }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.postgresql.persistence.size }}
+
+{{- else }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-postgresql-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-postgresql-app
+  template:
+    metadata:
+      labels:
+        app: temporal-postgresql-app
+{{- with .Values.postgresql.podLabels }}
+{{ toYaml . | nindent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:12
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.postgresql.auth.postgresUser }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgresql.auth.postgresPassword }}
+        - name: POSTGRES_DB
+          value: temporal
+        ports:
+        - containerPort: 5432
+        resources:
+{{ toYaml .Values.postgresql.resources | nindent 10 }}
+
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-postgresql
+spec:
+  selector:
+    app: temporal-postgresql-app
+  ports:
+  - port: 5432
+    targetPort: 5432
+{{- end }}

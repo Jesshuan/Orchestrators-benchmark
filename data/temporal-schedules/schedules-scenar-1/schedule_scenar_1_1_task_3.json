@@ -1,0 +1,11 @@
+{
+    "schedule_id": "schedule-scenar-1-1-task-3",
+    "task_queue" : "queue-team-a-3",
+    "type" : "monte_carlo_workflow",
+    "interval" : "300s",
+    "input_data": {
+        "scheduling_interval": 300,
+        "workflow_number": 3,
+        "nb_tasks": 1
+      }
+}
