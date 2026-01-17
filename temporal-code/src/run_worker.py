@@ -4,8 +4,9 @@ import os
 from temporalio.client import Client
 from temporalio.worker import Worker
 
-from activities.bash_activities import run_monte_carlo_task
+from activities.bash_activities import run_monte_carlo_task, run_io_bound_task
 from workflows.workflow_scenar_1 import MonteCarloWorkflow
+from workflows.workflow_scenar_2_a import IOBound2aWorkflow
 from concurrent.futures import ThreadPoolExecutor
 
 NB_THREADS = 1
@@ -35,8 +36,8 @@ async def main() -> None:
     worker: Worker = Worker(
         client,
         task_queue=task_queue,
-        activities = [run_monte_carlo_task],
-        workflows = [MonteCarloWorkflow],
+        activities = [run_monte_carlo_task, run_io_bound_task],
+        workflows = [MonteCarloWorkflow, IOBound2aWorkflow],
         activity_executor=activity_executor,
         max_concurrent_workflow_tasks = WORKFLOWS_CONCURRENCY,
         max_concurrent_activities = ACTIVITIES_CONCURRENCY

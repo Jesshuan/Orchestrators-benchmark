@@ -1,0 +1,10 @@
+{
+    "schedule_id": "schedule-scenar-2-a-4-tasks-4",
+    "task_queue" : "queue-team-a-4",
+    "type" : "io_bound_2_a_workflow",
+    "interval" : "300s",
+    "input_data": {
+        "scheduling_interval": 300,
+        "workflow_number": 4
+      }
+}

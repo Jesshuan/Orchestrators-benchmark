@@ -29,6 +29,9 @@ worker:
     pod_type: ephemeral_worker
 
 resources:
+  requests:
+    cpu: "1"
+    memory: "6Gi"
   limits:
-    cpu: "500m"
+    cpu: "1"
     memory: "6Gi"
