@@ -1,8 +1,8 @@
-summary: monte_carlo_flow_scenar_1-4_task_2
+summary: monte_carlo_flow_scenar_1-4_task_4_ok
 description: ''
 args:
   scheduling_interval: '300'
-  workflow_number: '2'
+  workflow_number: '4'
 cron_version: v2
 email: admin@windmill.dev
 enabled: false
@@ -14,6 +14,6 @@ on_recovery_extra_args: {}
 on_recovery_times: 1
 on_success_extra_args: {}
 schedule: 0 */5 * * * *
-script_path: u/admin/monte_carlo_flow_scenar_1-4_tasks
+script_path: f/flows_scenar_1/monte_carlo_flow_scenar_1-4_tasks
 timezone: Europe/Paris
 ws_error_handler_muted: false

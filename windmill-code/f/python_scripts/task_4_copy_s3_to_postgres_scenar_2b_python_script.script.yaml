@@ -3,17 +3,6 @@ description: ''
 lock: >-
   !inline
   f/python_scripts/task_4_copy_s3_to_postgres_scenar_2b_python_script.script.lock
-envs:
-  - >-
-    PUSHGATEWAY_URL=http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
-  - 'MINIO_ENDPOINT=http://minio.external-db.svc.cluster.local:9000'
-  - MINIO_ACCESS_KEY=minioadmin
-  - MINIO_SECRET_KEY=minioadmin
-  - OUTPUT_BUCKET=output-data
-  - PG_HOST=postgres.external-db.svc.cluster.local
-  - PG_DB=benchmark
-  - PG_USER=benchmark
-  - PG_PASSWORD=benchmark
 kind: script
 schema:
   $schema: 'https://json-schema.org/draft/2020-12/schema'

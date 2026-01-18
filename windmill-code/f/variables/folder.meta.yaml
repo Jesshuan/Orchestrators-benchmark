@@ -1,0 +1,6 @@
+summary: Env variables
+display_name: variables
+extra_perms:
+  u/admin: true
+owners:
+  - u/admin

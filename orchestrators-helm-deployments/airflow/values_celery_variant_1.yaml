@@ -838,11 +838,10 @@ workers:
   # Resource configuration for Airflow Celery workers and pods created with pod-template-file
   resources:
    limits:
-    cpu: 500m
+    cpu: 1
     memory: 6Gi
    requests:
-    cpu: 500m
-    memory: 1Gi
+    cpu: 1
 
   # Grace period for tasks to finish after SIGTERM is sent from kubernetes.
   # It is used by Airflow Celery workers and pod-template-file.

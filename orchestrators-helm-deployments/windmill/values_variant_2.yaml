@@ -118,7 +118,10 @@ windmill:
       # -- Resource limits and requests for the pods
       resources:
         limits:
-          memory: "2Gi"
+          cpu: "1"
+          memory: "6Gi"
+        requests:
+          cpu: "1"
 
       # -- Extra environment variables to apply to the pods
       extraEnv: []
@@ -181,7 +184,7 @@ windmill:
       # -- Extra environment variables to apply to the pods
       extraEnv:
         - name: "NUM_WORKERS"
-          value: "2"
+          value: "1"
         - name: "SLEEP_QUEUE"
           value: "200"
       # -- Extra sidecar containers

@@ -1,3 +1,4 @@
+import wmill
 import os
 import requests
 import time
@@ -11,11 +12,10 @@ TASK = "task_3"
 
 ####  Parameters (env) ####
 
-
-PUSHGATEWAY = os.environ["PUSHGATEWAY_URL"]
+PUSHGATEWAY = wmill.get_variable("u/variables/PUSHGATEWAY_URL")
 
 # ---------- EXTERNAL ----------
-EXTERNAL_SERVICE_URL = os.environ["EXTERNAL_SERVICE_URL"]
+EXTERNAL_SERVICE_URL = wmill.get_variable("f/variables/EXTERNAL_SERVICE_URL")
 # ----------------------------
 
 #### Observability tools ###

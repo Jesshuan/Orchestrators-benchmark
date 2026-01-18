@@ -1,4 +1,4 @@
-summary: monte_carlo_flow_scenar_1-4_task_3
+summary: monte_carlo_flow_scenar_1-4_task_3_ok
 description: ''
 args:
   scheduling_interval: '300'
@@ -14,6 +14,6 @@ on_recovery_extra_args: {}
 on_recovery_times: 1
 on_success_extra_args: {}
 schedule: 0 */5 * * * *
-script_path: u/admin/monte_carlo_flow_scenar_1-4_tasks
+script_path: f/flows_scenar_1/monte_carlo_flow_scenar_1-4_tasks
 timezone: Europe/Paris
 ws_error_handler_muted: false

@@ -1,3 +1,4 @@
+import wmill
 import os
 import time
 import requests
@@ -12,21 +13,21 @@ TASK = "task_4"
 
 ####  Parameters (env) ####
 
-PUSHGATEWAY = os.environ["PUSHGATEWAY_URL"]
+PUSHGATEWAY = wmill.get_variable("u/variables/PUSHGATEWAY_URL")
 
 # ---------- MINIO ----------
-MINIO_ENDPOINT = os.environ["MINIO_ENDPOINT"] 
-MINIO_ACCESS_KEY = os.environ["MINIO_ACCESS_KEY"]
-MINIO_SECRET_KEY = os.environ["MINIO_SECRET_KEY"]
+MINIO_ENDPOINT = wmill.get_variable("f/variables/MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = wmill.get_variable("f/variables/MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = wmill.get_variable("f/variables/MINIO_SECRET_KEY")
 
-OUTPUT_BUCKET = os.environ["OUTPUT_BUCKET"]
+OUTPUT_BUCKET = wmill.get_variable("f/variables/OUTPUT_BUCKET")
 
 # ---------- POSTGRES ----------
-PG_HOST = os.environ["PG_HOST"]
-PG_PORT = os.environ.get("PG_PORT", "5432")
-PG_DB = os.environ["PG_DB"]
-PG_USER = os.environ["PG_USER"]
-PG_PASSWORD = os.environ["PG_PASSWORD"]
+PG_HOST = wmill.get_variable("f/variables/PG_HOST")
+PG_PORT = wmill.get_variable("f/variables/PG_PORT")
+PG_DB = wmill.get_variable("f/variables/PG_DB")
+PG_USER = wmill.get_variable("f/variables/PG_USER")
+PG_PASSWORD = wmill.get_variable("f/variables/PG_PASSWORD")
 
 POSTGRES_DSN = (
     f"dbname={PG_DB} "

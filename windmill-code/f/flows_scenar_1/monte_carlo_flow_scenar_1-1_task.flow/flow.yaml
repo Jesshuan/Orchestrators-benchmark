@@ -20,7 +20,6 @@ value:
             expr: flow_input.workflow_number
         is_trigger: false
         path: f/bash_scripts/monte_carlo_scenar_1_bash_script
-  same_worker: false
 schema:
   $schema: 'https://json-schema.org/draft/2020-12/schema'
   type: object

@@ -3,15 +3,6 @@ description: ''
 lock: >-
   !inline
   f/python_scripts/task_2_s3_ingestion_scenar_2_b_python_script.script.lock
-envs:
-  - >-
-    PUSHGATEWAY_URL=http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
-  - 'MINIO_ENDPOINT=http://minio.external-db.svc.cluster.local:9000'
-  - MINIO_ACCESS_KEY=minioadmin
-  - MINIO_SECRET_KEY=minioadmin
-  - OUTPUT_BUCKET=output-data
-  - INPUT_BUCKET=input-data
-  - INPUT_KEY=users.parquet
 kind: script
 schema:
   $schema: 'https://json-schema.org/draft/2020-12/schema'
