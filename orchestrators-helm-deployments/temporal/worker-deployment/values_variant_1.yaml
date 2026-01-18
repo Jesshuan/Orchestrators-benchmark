@@ -1,0 +1,38 @@
+replicaCount: 4
+
+image:
+  repository: temporal-bench-worker
+  tag: latest
+  pullPolicy: IfNotPresent
+
+taskQueuePrefix: "queue-team-a"
+temporalServerAddress: "temporal-frontend.temporal.svc.cluster.local:7233"
+temporalNamespace: "team-a"
+
+worker:
+  launchScriptPath: "/app/temporal-worker/src/run_worker.py"
+  env:
+    LOG_LEVEL: "INFO"
+    PUSHGATEWAY_URL: http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
+    MINIO_ENDPOINT: "http://minio.external-db.svc.cluster.local:9000"
+    OUTPUT_BUCKET: "output-data"
+    INPUT_BUCKET: "input-data"
+    INPUT_KEY: "users.parquet"
+    MINIO_ACCESS_KEY: "minioadmin"
+    MINIO_SECRET_KEY: "minioadmin"
+    PG_HOST: "postgres.external-db.svc.cluster.local"
+    PG_DB: "benchmark"
+    PG_USER: "benchmark"
+    PG_PASSWORD: "benchmark"
+    EXTERNAL_SERVICE_URL: "http://fastapi-sleep.fastapi-sleep.svc.cluster.local/sleep"
+
+  labels:
+    pod_type: ephemeral_worker
+
+resources:
+  requests:
+    cpu: "1"
+    memory: "6Gi"
+  limits:
+    cpu: "1"
+    memory: "6Gi"

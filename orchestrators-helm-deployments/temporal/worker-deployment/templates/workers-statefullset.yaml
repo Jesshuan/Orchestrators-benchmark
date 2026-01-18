@@ -22,7 +22,7 @@ spec:
         - name: worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["python3", "/app/temporal-worker/src/run_worker.py"]
+          command: ["python3", {{ .Values.worker.launchScriptPath }}]
           env:
             - name: POD_NAME
               valueFrom:

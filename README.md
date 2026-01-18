@@ -117,7 +117,7 @@ Add the official helm chart :
 
 ```helm repo add windmill https://windmill-labs.github.io/windmill-helm-charts/```
 
-Prepare the custom python scripts docker image :
+Prepare the custom python scripts docker image (from the root of this repo project):
 
 ```docker build -t windmill-bench-project -f ./docker-orchestrator-factory/windmill-docker-image/Dockerfile .```
 
@@ -145,6 +145,9 @@ Whe just have to deploy the official windmill helm chart with 4 'defaults' worke
 
 ```helm install mywindmill windmill/windmill -n windmill --values values_variant_2.yaml```
 
+Or, of course, if you want to deploy the variant 2 from variant 1 :
+
+```helm upgrade mywindmill windmill/windmill -n windmill --values values_variant_2.yaml```
 
 
 #### Set-up windmill & the benchmark code
@@ -178,6 +181,8 @@ Download the cli...
 
 You'll retrived all the existing experiments components : scripts, flows, and schedules...
 Now refer you to the official documentation to play with all theses components.
+
+Be carefull : perhaps you have to re-write all the env variables set inside each the 6 differents scripts. wmill push seems to ignore it ! Open each yaml files for the 'bash script' and 'python scripts' folders, and copy/paste all the envs to the Settings -> Runtime -> Env section of each script.
 
 
 
@@ -354,6 +359,39 @@ You should be connected now as the team-a ops/maintainer  user...
 
 ### Temporal orchestrator deployment
 
+#### Build the workers image
+
+#### Variant 1
+(scenario 1, 2 a )
+
+
+For this variant, all the scripts are : python scripts activities (Temporal need that) that launch sub-process like bash script (equity versus all the others orchestrators) that launch python script inside the workers...
+
+The worker image host the benhcmark python project AND also the temporal code.
+
+From the root of this repo :
+
+```docker build -t temporal-bench-worker -f ./docker-orchestrator-factory/windmill-docker-image/Dockerfile . ----build-arg=/app/temporal-worker/src/run_worker.py```
+
+#### Variant 2
+(scenario 2b )
+
+
+For this variant, all the scripts are : all the activities are purely python activities.
+
+The worker image host the benhcmark python project AND also the temporal code.
+
+From the root of this repo :
+
+```docker build -t temporal-bench-worker -f ./docker-orchestrator-factory/windmill-docker-image/Dockerfile . ----build-arg=/app/temporal-worker/src/run_worker_2.py```
+
+
+Load it to the kind cluster docker registry :
+
+```kind load docker-image airflow-bench-project:latest -n bench-orchestrator```
+
+
+
 #### Deploy the custom postgres database for Temporal
 
 deploiement custom postgres 
@@ -368,7 +406,48 @@ From inside the database :
 
 helm install --repo https://go.temporal.io/helm-charts --version '>=1.0.0-0' -n temporal -f values.yaml temporal temporal --timeout 900s
 
+#### Generate the PV-PVC claim volume for schedules
+
+```cd orchestrators-helm-deployments/temporal/pvc-claim```
+
+```kubectl apply -f pv_pvc_values.yaml -n temporal```
+
+#### Deploy the temporal workers 
 
 
+```cd orchestrators-helm-deployments/temporal/worker-deployment```
+
+##### Variant 1
+(scenario 1 , 2a)
+
+Workers with bash scripts activities and Workflows MonteCarlo & Workflows IOBound scenar 2a...
+
+```helm install temporal-workers . -n temporal --values vamues_variant_1.yaml```
+
+##### Variant 2
+(scenario 2b)
+
+Workers with purely python activities and Workflows scenar 2b...
+
+```helm install temporal-workers . -n temporal --values vamues_variant_1.yaml```
+
+
+#### Generate the temporal schedules 
+
+With the pvc claim, the pre-defined schedules json definition can be upload to the temporal server wih a Kubernetes job.
+
+```cd orchestrators-helm-deployments/temporal/schedules-jobs-tools```
+
+And choos your scenario, and launch the job according to it...
+
+Example :
+
+```kubectl apply -f create_schedule_scenar_1.yaml -n temporal```
+
+See the job logs...
+
+This will automatically generate the appropriate schedules, visible within the Temporal Web UI.
+
+The schedules are "paused" by default. You just have to "unpause" it to use it.
 
 

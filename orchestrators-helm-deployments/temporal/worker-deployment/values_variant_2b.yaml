@@ -10,6 +10,7 @@ temporalServerAddress: "temporal-frontend.temporal.svc.cluster.local:7233"
 temporalNamespace: "team-a"
 
 worker:
+  launchScriptPath: "/app/temporal-worker/src/run_worker_2b.py"
   env:
     LOG_LEVEL: "INFO"
     PUSHGATEWAY_URL: http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091

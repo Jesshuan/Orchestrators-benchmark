@@ -3,6 +3,7 @@ FROM python:3.12-slim AS builder
 
 ARG PROJECT_NAME=bench-python-project
 ARG TEMPORAL_CODE_PROJECT=temporal-code
+ARG WORKER_SCRIPT=/app/temporal-worker/src/run_worker.py
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential curl ca-certificates \
@@ -46,4 +47,4 @@ COPY ./$PROJECT_NAME/src ./python-benchmark/src
 COPY ./$TEMPORAL_CODE_PROJECT/src ./temporal-worker/src
 
 # Run the Temporal worker
-ENTRYPOINT ["python3", "/app/temporal-worker/src/run_worker.py"]
+ENTRYPOINT ["python3", $WORKER_SCRIPT]
