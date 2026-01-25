@@ -59,10 +59,12 @@ spec:
 
       - name: EXTERNAL_SERVICE_URL
         value: "http://fastapi-sleep.fastapi-sleep.svc.cluster.local/sleep"
-      resource:
+      resources:
         limits:
           memory: {{ .Values.io_bound_tasks_pods.memory_limits }}
           cpu: {{ .Values.io_bound_tasks_pods.cpu_limits }}
+        requests:
+          cpu: {{ .Values.io_bound_tasks_pods.cpu_requests }}
       command: ["bash"]
       source: |
             set -e
