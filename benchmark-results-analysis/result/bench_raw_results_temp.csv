@@ -48,7 +48,11 @@ scenar_1_1X4_exec_time_max_l,29.5,15.4,20,56.8
 SCENARIO_1_4X4_task,,,,
 scenar_1_4X4_perm_cpu_mean,0.33,1.11,0.041,0.54
 scenar_1_4X4_perm_cpu_max,0.52,1.54,0.08,0.77
+<<<<<<< HEAD
 scenar_1_4X4_perm_memory_mean,2605,5150,144,1864
+=======
+scenar_1_1X4_perm_memory_mean,2605,5150,144,1864
+>>>>>>> d1ba49d (new intermediary nechmark result file 2)
 scenar_1_4X4_perm_memory_max,2690,5610,155,1871
 scenar_1_4X4_work_cpu_mean,3.22,1.55,1.65,0.66
 scenar_1_4X4_work_cpu_max,8,3.86,4.34,2.4
