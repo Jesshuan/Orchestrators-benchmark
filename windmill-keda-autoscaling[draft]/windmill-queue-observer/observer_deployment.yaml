@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: windmill-observer
+  name: windmill-queue-observer
   namespace: windmill
 spec:
   replicas: 1
@@ -12,15 +12,16 @@ spec:
     metadata:
       labels:
         app: windmill-observer
+        pod_type: permanent_pod
     spec:
       containers:
-      - name: windmill-observer
-        image: w-test-observer:11
-        imagePullPolicy: Never
+      - name: windmill-queue-observer
+        image: windmill-queue-observer:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
         env:
         - name: WINDMILL_URL
           value: "http://windmill-app.windmill.svc.cluster.local:8000" # internal service DNS
         - name: WINDMILL_TOKEN
-          value: CEfU0PketPQNP6X2g0EQuvVw3oodkcEE
+          value: YW5GJry4EODtBJ2vualxFkjmaSnF6vhP

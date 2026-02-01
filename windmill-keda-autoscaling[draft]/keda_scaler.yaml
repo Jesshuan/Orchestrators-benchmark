@@ -1,16 +1,16 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: windmill-workers-project-a
+  name: windmill-workers-custom-python-project
   namespace: windmill
 spec:
   scaleTargetRef:
-    name: windmill-workers-project-a
+    name: windmill-workers-custom-python-project
     kind: Deployment
   minReplicaCount: 0
   maxReplicaCount: 4
-  pollingInterval: 10  # Optional. Default: 30 seconds
-  cooldownPeriod:  10 # Optional. Default: 300 seconds
+  pollingInterval: 1
+  cooldownPeriod:  20
   triggers:
   - type: prometheus
     metadata:

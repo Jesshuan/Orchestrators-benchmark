@@ -7,8 +7,7 @@ from prometheus_client import CollectorRegistry, Gauge, generate_latest, CONTENT
 WINDMILL_URL = os.getenv("WINDMILL_URL")  # e.g. https://team-a.windmill.example.com
 WINDMILL_TOKEN = os.getenv("WINDMILL_TOKEN")
 
-WORKSPACES = [{"workspace": "dev", "tag": "project-a"},
-              {"workspace": "prod", "tag": "project-a"}]
+WORKSPACES = [{"workspace": "bench-orchestrator", "tag": "custom-python-project"}]
 
 app = FastAPI()
 
