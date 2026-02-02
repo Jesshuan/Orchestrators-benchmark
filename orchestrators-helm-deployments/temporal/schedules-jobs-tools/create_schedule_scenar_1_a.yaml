@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: temporal-generate-schedules-scenar-1
+  name: temporal-generate-schedules-scenar-1-a-2
 spec:
   backoffLimit: 0
   template:
@@ -16,7 +16,7 @@ spec:
             - name: TEMPORAL_NAMESPACE
               value: team-a
             - name: SCHEDULE_DIR
-              value: /schedules/schedules-scenar-1
+              value: /schedules/schedules-scenar-1-a
           command:
             - sh
             - -e

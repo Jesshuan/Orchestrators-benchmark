@@ -1,4 +1,5 @@
-replicaCount: 4
+replicaCount: 1
+kindDeployment: Deployment
 
 image:
   repository: temporal-bench-worker

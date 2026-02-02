@@ -1,6 +1,6 @@
 {
-    "schedule_id": "schedule-scenar-1-4-tasks-2",
-    "task_queue" : "queue-team-a-2",
+    "schedule_id": "schedule-scenar-1-a-4-tasks-2",
+    "task_queue" : "queue-team-a",
     "type" : "monte_carlo_workflow",
     "interval" : "300s",
     "input_data": {

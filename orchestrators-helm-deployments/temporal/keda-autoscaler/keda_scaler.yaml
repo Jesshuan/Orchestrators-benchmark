@@ -1,0 +1,28 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: temporal-worker-scaler
+  namespace: temporal
+spec:
+  scaleTargetRef:
+    name: temporal-worker
+    kind: Deployment
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  pollingInterval: 1
+  cooldownPeriod:  20
+  triggers:
+  - type: temporal
+    metadata:
+      namespace: team-a
+      taskQueue: "queue-team-a"
+      targetQueueSize: "1"
+      activationTargetQueueSize: "0"
+      endpoint: temporal-frontend.temporal.svc.cluster.local:7233
+      #queueTypes: workflow # optional
+      #buildId: 1.0.0 # optional
+      #selectAllActive: "false" # optional
+      #selectUnversioned: "false" # optional
+      #minConnectTimeout: "5" # optional
+      #unsafeSsl: "false" # optional
+      #tlsServerName: "custom-tls-servername" # optional

@@ -5,7 +5,7 @@ from temporalio.client import Client
 from temporalio.worker import Worker
 
 from activities.bash_activities import run_monte_carlo_task, run_io_bound_task
-from workflows.workflow_scenar_1 import MonteCarloWorkflow
+from workflows.workflow_scenar_1_a import MonteCarloWorkflow
 from workflows.workflow_scenar_2_a import IOBound2aWorkflow
 from concurrent.futures import ThreadPoolExecutor
 
@@ -19,11 +19,9 @@ NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 
 # ----- task queue configuration -----
 
-pod_name = os.environ.get("POD_NAME", "worker-default")
-prefix = os.environ.get("TASK_QUEUE_PREFIX", "default")
-index_pod = int(pod_name.split("-")[-1]) + 1 # assuming pod name ends with -<index> starting from 0
-
-task_queue = f"{prefix}-{index_pod}"
+#pod_name = os.environ.get("POD_NAME", "worker-default")
+task_queue = os.environ.get("TASK_QUEUE_PREFIX", "default")
+#index_pod = int(pod_name.split("-")[-1]) + 1 # assuming pod name ends with -<index> starting from 0
 
 # -------------------------------------
 
