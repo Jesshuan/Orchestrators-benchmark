@@ -9,9 +9,12 @@ with DAG(
     catchup=False
 ) as dag:
 
-    run_monte_carlo_first_task(task_id="monte_carlo_single_task_1",
-                               params={
-        "scheduling_interval": 300,
-        "workflow_number": 1,
-        "task": 1,
-    }).dag = dag
+    run_monte_carlo_first_task(
+        task_id="monte_carlo_single_task_1",
+        params={
+            "scheduling_interval": 300,
+            "workflow_number": 1,
+            "task": 1,
+        },
+        queue='task-queue-1'  # Assign to worker-0
+    ).dag = dag

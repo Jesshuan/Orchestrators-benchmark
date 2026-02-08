@@ -18,7 +18,8 @@ with DAG(
         "workflow_number": WORKFLOW_NUMBER,
         "scheduling_interval": 300,
         "task": "task_1",
-        }
+        },
+        queue='task-queue-3'
     )
 
 
@@ -29,7 +30,8 @@ with DAG(
         "previous_task_id": task_1.task_id,
         "scheduling_interval": 300,
         "task": "task_2",
-        }
+        },
+        queue='task-queue-3'
     )
 
     task_3 = run_monte_carlo_next_task(
@@ -39,7 +41,8 @@ with DAG(
         "previous_task_id": task_2.task_id,
         "scheduling_interval": 300,
         "task": "task_3",
-        }
+        },
+        queue='task-queue-3'
     )
 
     task_4 = run_monte_carlo_next_task(
@@ -49,7 +52,8 @@ with DAG(
         "previous_task_id": task_3.task_id,
         "scheduling_interval": 300,
         "task": "task_4",
-        }
+        },
+        queue='task-queue-3'
     )
 
     task_1 >> task_2 >> task_3 >> task_4

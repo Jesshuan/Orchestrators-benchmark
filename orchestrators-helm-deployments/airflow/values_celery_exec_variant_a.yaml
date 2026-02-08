@@ -640,12 +640,19 @@ workers:
   command: ~
   # Args to use when running Airflow Celery workers (templated)
   args:
-    - "bash"
-    - "-c"
-    # The format below is necessary to get `helm lint` happy
-    - |-
-      exec \
-      airflow {{ semverCompare ">=2.0.0" .Values.airflowVersion | ternary "celery worker" "worker" }}
+      - "bash"
+      - "-c"
+      # The format below is necessary to get `helm lint` happy
+      - |-
+        # Extract worker ordinal from hostname (e.g., airflow3-worker-0 -> 0)
+        WORKER_ORDINAL=$(hostname | grep -o '[0-9]*$')
+        QUEUE_NUMBER=$((WORKER_ORDINAL + 1))
+        QUEUE_NAME="task-queue-${QUEUE_NUMBER}"
+
+        echo "Worker starting with queue: ${QUEUE_NAME}"
+
+        exec \
+        airflow {{ semverCompare ">=2.0.0" .Values.airflowVersion | ternary "celery worker" "worker" }} -q ${QUEUE_NAME}
 
   # If the Airflow Celery worker stops responding for 5 minutes (5*60s)
   # kill the worker and let Kubernetes restart it
@@ -839,9 +846,10 @@ workers:
   resources:
    limits:
     cpu: 1
-    memory: 6Gi
+    memory: 4Gi
    requests:
     cpu: 1
+    memory: 4Gi
 
   # Grace period for tasks to finish after SIGTERM is sent from kubernetes.
   # It is used by Airflow Celery workers and pod-template-file.
@@ -920,7 +928,7 @@ workers:
   # Log groomer configuration for Airflow Celery workers
   logGroomerSidecar:
     # Whether to deploy the Airflow Celery worker log groomer sidecar
-    enabled: true
+    enabled: false
 
     # Command to use when running the Airflow Celery worker log groomer sidecar (templated)
     command: ~
@@ -934,13 +942,13 @@ workers:
     # Frequency to attempt to groom logs (in minutes)
     frequencyMinutes: 15
 
-    resources: {}
-    #  limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    #  requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
     # Detailed default security context for logGroomerSidecar for container level
     securityContexts:
@@ -1171,7 +1179,7 @@ scheduler:
 
   logGroomerSidecar:
     # Whether to deploy the Airflow scheduler log groomer sidecar.
-    enabled: true
+    enabled: false
     # Command to use when running the Airflow scheduler log groomer sidecar (templated).
     command: ~
     # Args to use when running the Airflow scheduler log groomer sidecar (templated).
@@ -1949,7 +1957,7 @@ triggerer:
 
   logGroomerSidecar:
     # Whether to deploy the Airflow triggerer log groomer sidecar.
-    enabled: true
+    enabled: false
     # Command to use when running the Airflow triggerer log groomer sidecar (templated).
     command: ~
     # Args to use when running the Airflow triggerer log groomer sidecar (templated).
@@ -2137,7 +2145,7 @@ dagProcessor:
 
   logGroomerSidecar:
     # Whether to deploy the Airflow dag processor log groomer sidecar.
-    enabled: true
+    enabled: false
     # Command to use when running the Airflow dag processor log groomer sidecar (templated).
     command: ~
     # Args to use when running the Airflow dag processor log groomer sidecar (templated).

@@ -15,4 +15,6 @@ with DAG(
         "scheduling_interval": 300,
         "workflow_number": 2,
         "task": 1,
-    }).dag = dag
+    },
+    queue='task-queue-2'  # Assign to worker-1
+    ).dag = dag

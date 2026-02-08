@@ -1,11 +1,12 @@
 from airflow.operators.bash import BashOperator
 
 
-def run_monte_carlo_next_task(task_id: str, params: dict):
+def run_monte_carlo_next_task(task_id: str, params: dict, queue: str = 'default'):
 
     return BashOperator(
         task_id=task_id,
         params=params,
+        queue=queue,
         bash_command=r"""
         scheduling_interval="{{ params.scheduling_interval | default(300) }}"
         workflow_number="{{ params.workflow_number | default(1) }}"
