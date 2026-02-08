@@ -13,3 +13,5 @@ nodes:
     extraMounts:
       - hostPath: ${DATA_PATH} 
         containerPath: /data
+      - hostPath: ${KUBELET_CONFIG_PATH}/kubelet_config.yaml
+        containerPath: /var/lib/kubelet/config.yaml
