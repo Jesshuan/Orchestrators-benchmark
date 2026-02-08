@@ -1,0 +1,6 @@
+apiVersion: v2
+name: windmill-keda-scaling
+type: application
+version: 0.0.1
+
+description: Custom chart for deploying keda and observer service (variant a)

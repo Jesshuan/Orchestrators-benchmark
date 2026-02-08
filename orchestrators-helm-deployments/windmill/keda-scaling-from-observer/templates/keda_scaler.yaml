@@ -1,0 +1,21 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: windmill-workers-custom-python-project
+  namespace: windmill
+spec:
+  scaleTargetRef:
+    name: windmill-workers-custom-python-project
+    kind: Deployment
+  minReplicaCount: 0
+  maxReplicaCount: 4
+  pollingInterval: 1
+  cooldownPeriod:  20
+  triggers:
+  - type: metrics-api
+    metadata:
+      targetValue: "1"
+      url: "http://windmill-queue-observer.windmill.svc.cluster.local:8080/metrics"
+      valueLocation: "bench-orchestrator_custom-python-project"
+      format: "json"
+
