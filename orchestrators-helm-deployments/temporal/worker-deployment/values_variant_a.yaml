@@ -1,5 +1,5 @@
-replicaCount: 1
-kindDeployment: Deployment
+replicaCount: 4
+kindDeployment: StatefulSet
 
 image:
   repository: temporal-bench-worker
@@ -33,7 +33,7 @@ worker:
 resources:
   requests:
     cpu: "1"
-    memory: "6Gi"
+    memory: "5Gi"
   limits:
     cpu: "1"
-    memory: "6Gi"
+    memory: "5Gi"
