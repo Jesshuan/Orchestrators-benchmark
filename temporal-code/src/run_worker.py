@@ -19,10 +19,11 @@ NAMESPACE = os.environ.get("TEMPORAL_NAMESPACE", "default")
 
 # ----- task queue configuration -----
 
-#pod_name = os.environ.get("POD_NAME", "worker-default")
-task_queue = os.environ.get("TASK_QUEUE_PREFIX", "default")
-#index_pod = int(pod_name.split("-")[-1]) + 1 # assuming pod name ends with -<index> starting from 0
+pod_name = os.environ.get("POD_NAME", "worker-default")
+prefix = os.environ.get("TASK_QUEUE_PREFIX", "default")
+index_pod = int(pod_name.split("-")[-1]) + 1 # assuming pod name ends with -<index> starting from 0
 
+task_queue = f"{prefix}-{index_pod}"
 # -------------------------------------
 
 async def main() -> None:
