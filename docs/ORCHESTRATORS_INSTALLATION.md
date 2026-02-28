@@ -169,6 +169,7 @@ Create a persistent volume claim to sync DAGs from your local folder to Airflow.
 
 ```bash
 cd orchestrators-helm-deployments/airflow/pvc-claim
+kubectl create namespace airflow
 kubectl apply -f pv_pvc_values.yaml
 ```
 
@@ -180,7 +181,7 @@ kubectl get pvc -n airflow
 
 ---
 
-### Variant 1: CeleryExecutor (Scenario 1, 2A & 2B)
+### Variant ALL : CeleryExecutor (Scenario 1, 2A & 2B)
 
 This variant uses CeleryExecutor with permanently running workers.
 
@@ -209,7 +210,7 @@ kind load docker-image airflow-bench-project:latest -n bench-orchestrator
 
 ```bash
 cd orchestrators-helm-deployments/airflow
-helm install airflow3 apache-airflow/airflow -n airflow --values values_celery_variant_1.yaml
+helm install airflow3 apache-airflow/airflow -n airflow --values values_celery_exec_variant_all.yaml
 ```
 
 This deploys Airflow 3.0.2 with:
