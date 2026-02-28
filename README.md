@@ -28,8 +28,7 @@ and also, for scenario 2 :
 - **variant scenario 2 a** : all the tasks are bash scripts that launch itself python scritps (equality setup with Argo Workflow)
 - versus **variant scenario 2 b** : purely python scripts, according to the natural paradigm of each orchestrator (Argo Workflow is excluded form this benchmark variant)
 
-[TODO] A synthetical table with all the scenarios and variants...
-
+See : **[Benchmark Scenarios](docs/SCENARIOS.md)** | In-depth explanation of each benchmark scenario and workload
 
 ---
 
@@ -137,7 +136,7 @@ helm install external-db . -n external-db --create-namespace --values values.yam
 ```
 # 4. Deploy orchestrators (see detailed docs for each)
 
-**[Installation Guide](docs/GLOBAL_INSTALLATION.md)** - Complete step-by-step setup instructions for each orchestrator !
+**[Orchestrators Setup](docs/ORCHESTRATORS_INSTALLATION.md)** - Complete step-by-step setup instructions for each orchestrator !
 
 ---
 
@@ -181,6 +180,8 @@ Real-world data pipeline with S3, PostgreSQL, and external API integration using
 
 ### Scenario 2B: I/O-Bound (Pure Python)
 Same pipeline as 2A but with pure Python activities (no subprocess overhead).
+
+See : **[Benchmark Scenarios](docs/SCENARIOS.md)** | In-depth explanation of each benchmark scenario and workload
 
 ---
 
