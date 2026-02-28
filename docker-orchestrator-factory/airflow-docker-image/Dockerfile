@@ -36,7 +36,7 @@ COPY --from=builder /opt/venv /opt/venv
 COPY ./$PROJECT_NAME/src/scripts /opt/airflow/scripts
 
 # Ensure airflow uses our venv
-ENV PATH="/opt/venv/bin:$PATH"
+#ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH="/opt/venv/lib/python3.12/site-packages:$PYTHONPATH"
 
 # Avoid pip install at runtime
@@ -44,3 +44,6 @@ ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
 ENV AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
 
 USER airflow
+
+# Downgrade redis to <5.0.0 to fix kombu incompatibility (redis 5.x removed redis.client)
+RUN pip install "redis<5.0.0"
