@@ -88,6 +88,38 @@ Or for a quick overview:
 # 1. Create Kind cluster
 export DATA_PATH="${PWD}/data"
 envsubst < config_cluster.yaml | kind create cluster --config=-
+```
+
+Manage the CPU rules as 'static'.
+
+```bash
+docker ps # Get the CONTAINER_ID of the kind node cluster
+
+docker exec -it [CONTAINER_ID] bash
+```
+
+Inside the container :
+
+
+```bash
+rm var/lib/kubelet/cpu_manager_state
+
+docker exec [CONTAINER_ID] cat <<EOF >> var/lib/kubelet/config.yaml
+systemReserved: 
+  cpu: "500m" 
+  memory: "100m" 
+kubeReserved:
+  cpu: "500m" 
+  memory: "100m" 
+cpuManagerPolicy: "static"
+EOF
+
+systemctl daemon-reload
+
+systemctl stop kubelet
+
+systemctl start kubelet
+```
 
 # 2. Deploy observability stack
 cd observability-stack

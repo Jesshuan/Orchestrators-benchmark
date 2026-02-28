@@ -44,6 +44,7 @@ From the root directory of this project:
 
 ```bash
 export DATA_PATH="${PWD}/data"
+export KUBELET_CONFIG_PATH="${PWD}"
 ```
 
 This variable is used in the Kind cluster configuration to mount local directories.
@@ -68,6 +69,60 @@ kubectl get nodes
 ```
 
 You should see your Kind control-plane node in a `Ready` state.
+
+### Step 4: Add a 'CPU static' rule
+
+Manage the CPU rules as 'static'.
+We want each orchestrator worker uses one entire CPU for each task with a parellelism allowed for 4 concurrent workers, but no concurrency inside each one.
+At least on a "local mono-node" kind cluster, we have to setup this strict isloation.
+
+```bash
+docker ps # Get the CONTAINER_ID of the kind node cluster
+
+docker exec -it [CONTAINER_ID] bash
+```
+
+Inside the container :
+
+
+```bash
+rm var/lib/kubelet/cpu_manager_state
+
+docker exec [CONTAINER_ID] cat <<EOF >> var/lib/kubelet/config.yaml
+systemReserved: 
+  cpu: "500m" 
+  memory: "100m" 
+kubeReserved:
+  cpu: "500m" 
+  memory: "100m" 
+cpuManagerPolicy: "static"
+EOF
+
+systemctl daemon-reload
+
+systemctl stop kubelet
+
+systemctl start kubelet
+```
+
+
+### ** CPU Manager handling **
+
+Important !
+On a local kind cluster single node, to prevent a wrong (necessary) cpu isolation between each worker of any orchestrator, you have to reset and see the cpu manager state between each different orchestrator deployment , and each new worker configuration (variant a -> variant b for example).
+To achieve this, you have to launch theses commands since you change the workers setup :
+
+```bash
+#First, ensure you workers are not "Burstable" but in a "Guaranteed" state :
+#(example with airflow workers)
+kubectl get pod airflow3-worker-0 -n airflow -o jsonpath='{.status.qosClass}'
+# this should return "Guaranteed"
+
+# ... and restart kubelet 
+docker exec bench-orchestrator-control-plane bash -c "rm -f /var/lib/kubelet/cpu_manager_state && systemctl restart kubelet"
+
+# Then print the result on the cpu state :
+
 
 ---
 
@@ -123,7 +178,7 @@ Wait until all pods are in `Running` state.
 ### Step 1: Port-forward Grafana
 
 ```bash
-kubectl port-forward -n observ-stack svc/observability-stack-grafana 3000:80
+kubectl port-forward -n observ-stack svc/observability-stack-grafana 3000:3000
 ```
 
 ### Step 2: Access Grafana
@@ -138,9 +193,8 @@ You'll be prompted to change the password on first login.
 
 ### Step 3: Generate an admin token
 
-1. Click on your profile icon (top-right corner)
-2. Go to **Profile**
-3. Navigate to **Service Accounts**
+1. Go to **Administration** on the left panel
+3. Got to **Users and access** -> **Service account**
 4. Create a new service account with **Admin** role
 5. Generate a token and save it securely
 
@@ -234,16 +288,18 @@ kubectl get pods -n external-db
 #### Find the MinIO WebUI port
 
 ```bash
-kubectl logs -n external-db deployment/external-db-minio | grep http://127.0.0.1
+kubectl logs -n external-db deployment/minio | grep http://127.0.0.1
 ```
 
-Look for a line like: `http://127.0.0.1:33456`
+Look for a line like: `WebUI : http://127.0.0.1:[WEB_UI_PORT]`
 
 #### Port-forward the MinIO service
 
 ```bash
-kubectl port-forward -n external-db svc/external-db-minio 9001:9001
+kubectl port-forward -n external-db svc/external-db-minio [WEB_UI_PORT]:9001
 ```
+
+
 
 **Note:** Adjust the port if it differs from the logs.
 
@@ -307,7 +363,14 @@ kubectl get pods -n fastapi-sleep
 kubectl get svc -n fastapi-sleep
 ```
 
-The service should be accessible at `http://fastapi-sleep.fastapi-sleep.svc.cluster.local:8000`
+Port-forward it :
+
+```bash
+kubectl port-forward -n fastapi-sleep svc/fastapi-sleep 8000:8000
+```
+
+The fastAPI service should be accessible at `http://localhost:8000/docs`
+You should test it with the 'Try me' option inside the unique GET endpoint '/sleep'.
 
 ---
 
