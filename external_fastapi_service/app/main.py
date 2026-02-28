@@ -4,6 +4,6 @@ import time
 app = FastAPI()
 
 @app.get("/sleep")
-def sleep_endpoint(seconds: int = 60):
+def sleep_endpoint(seconds: int = 30):
     time.sleep(seconds)
     return {"status": "ok", "slept": seconds}
