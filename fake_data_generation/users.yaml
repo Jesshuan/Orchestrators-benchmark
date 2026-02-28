@@ -16,4 +16,4 @@ columns:
 info:
   output_name: users
   output_format: parquet
-  rows: 1_000_000
+  rows: 10_000_000
