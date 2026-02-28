@@ -8,10 +8,11 @@ from datetime import datetime
 
 WORKFLOW_NUMBER = 12
 SCHEDULER_INTERVAL = 300  # seconds
+QUEUE = 'task-queue-4'
 
 
 # ---- DAG TASKS ----
-@task(multiple_outputs=True)
+@task(multiple_outputs=True, queue=QUEUE)
 def task_1_cleanup(
     workflow_number: int,
     scheduling_interval: int,
@@ -21,7 +22,7 @@ def task_1_cleanup(
         scheduling_interval=scheduling_interval,
     )
 
-@task(multiple_outputs=True)
+@task(multiple_outputs=True, queue=QUEUE)
 def task2_s3_ingestion(
     workflow_number: int,
     scheduling_interval: int,
@@ -33,7 +34,7 @@ def task2_s3_ingestion(
         scheduling_time=scheduling_time,
     )
 
-@task(multiple_outputs=True)
+@task(multiple_outputs=True, queue=QUEUE)
 def task3_wait_external(
     workflow_number: int,
     scheduling_interval: int,
@@ -45,7 +46,7 @@ def task3_wait_external(
         scheduling_time=scheduling_time,
     )
 
-@task(multiple_outputs=True)
+@task(multiple_outputs=True, queue=QUEUE)
 def task4_s3_copy_to_pg(
     workflow_number: int,
     scheduling_interval: int,

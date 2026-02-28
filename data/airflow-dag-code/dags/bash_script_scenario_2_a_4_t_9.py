@@ -20,7 +20,8 @@ with DAG(
         "workflow_number": WORKFLOW_NUMBER,
         "scheduling_interval": 300,
         "task": "task_1",
-        }
+        },
+        queue='task-queue-1'  # Assign to worker-0
     )
 
 
@@ -31,7 +32,8 @@ with DAG(
         "previous_task_id": task_1.task_id,
         "scheduling_interval": 300,
         "task": "task_2",
-        }
+        },
+        queue='task-queue-1'  # Assign to worker-0
     )
 
     task_3 = run_scenar_2_a_task_3(
@@ -41,7 +43,8 @@ with DAG(
         "previous_task_id": task_2.task_id,
         "scheduling_interval": 300,
         "task": "task_3",
-        }
+        },
+        queue='task-queue-1'  # Assign to worker-0
     )
 
     task_4 = run_scenar_2_a_task_4(
@@ -51,7 +54,8 @@ with DAG(
         "previous_task_id": task_3.task_id,
         "scheduling_interval": 300,
         "task": "task_4",
-        }
+        },
+        queue='task-queue-1'  # Assign to worker-0
     )
 
     task_1 >> task_2 >> task_3 >> task_4
