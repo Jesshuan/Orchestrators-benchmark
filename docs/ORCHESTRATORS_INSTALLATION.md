@@ -23,6 +23,8 @@ Windmill is a developer-friendly workflow orchestrator with a "hybrid declarativ
 
 ### Deploy Custom PostgreSQL for Windmill
 
+The postgreSQL database is necessary to tag it as 'permanent_pod' for observability.
+
 ```bash
 cd orchestrators-helm-deployments/windmill/postgres-custom
 helm install windmill-postgres . -n windmill --create-namespace --values values.yaml
@@ -78,6 +80,8 @@ This variant uses default Windmill workers with pure Python activities.
 
 #### Deploy Windmill with default workers
 
+**Note:** Remove the variant 1 worker setup befor applying this new variant: `helm uninstall mywindmill -n windmill`
+
 ```bash
 cd orchestrators-helm-deployments/windmill
 helm install mywindmill windmill/windmill -n windmill --values values_variant_2.yaml
@@ -113,6 +117,8 @@ Create a new workspace named `bench-orchestrator`. It will be empty initially.
 
 #### Step 3: Add workspace to your local machine
 
+Install the Windmill CLI : [windmill official CLI installation](https://www.windmill.dev/docs/advanced/cli/installation)
+
 ```bash
 wmill workspace add
 ```
@@ -136,19 +142,7 @@ This uploads:
 - Workflow definitions (flows)
 - Schedules
 
-#### Step 5: Configure environment variables
-
-**Important:** The `wmill sync push` command may not correctly set environment variables.
-
-For each of the 6 scripts (bash + python), manually verify and set environment variables:
-
-1. Open each script in the Windmill UI
-2. Go to **Settings → Runtime → Env**
-3. Copy environment variables from the corresponding YAML files in `windmill-code/f/`
-
-Scripts requiring environment variables:
-- All bash scripts in `bash_scripts/` folder
-- All python scripts in `python_scripts/` folder
+Now, you just have to activate the scheduler one by one, depending on the scenario and variant used.
 
 ---
 
@@ -246,6 +240,19 @@ Your DAGs should be automatically loaded thanks to the volume mapping:
 ```
 local machine → kind node → airflow instances (via k8s PV/PVC)
 ```
+
+You just have to launch it with the dedicated button, step by step, according to the different scenarios.
+
+### Uninstall Airflow setup
+
+Before any other orchestator installation, you must remove the airflow setup.
+
+```bash
+helm uninstall airflow3 -n airflow 
+```
+
+You can also remove the pv and pvc associated to Airflow with kubectl commands... or directly with k9s.
+
 
 ---
 
