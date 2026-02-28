@@ -88,6 +88,7 @@ if __name__ == "__main__":
     task = args.task
 
     start_ts = now()
+    start_cpu = os.times()
 
     if task != DEFAULT_TASK_NUMBER and scheduling_time is not None:
         scheduled_ts = float(scheduling_time)
@@ -100,6 +101,7 @@ if __name__ == "__main__":
     pi = monte_carlo_pi(n)
 
     end_ts = now()
+    end_cpu = os.times()
 
     duration = time.perf_counter() - start
     print(f"pi={pi}, time={duration:.2f}s")
@@ -109,6 +111,8 @@ if __name__ == "__main__":
     scheduling_delay = start_ts - scheduled_ts
     execution_duration = end_ts - start_ts
     end_to_end = end_ts - scheduled_ts
+    cpu_time = ((end_cpu.user + end_cpu.system) -
+              (start_cpu.user + start_cpu.system))
 
     push_metrics(scheduling_delay, execution_duration, end_to_end, workflow_number=wf, task=task)
 
@@ -119,6 +123,7 @@ if __name__ == "__main__":
         "start_ts" : start_ts,
         "scheduled_ts" : scheduled_ts,
         "end_ts" : end_ts,
+        "cpu_time": cpu_time
     }
 
     print("--- Result ---")
