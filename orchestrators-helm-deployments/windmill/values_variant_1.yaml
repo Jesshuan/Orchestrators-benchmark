@@ -180,9 +180,10 @@ windmill:
       resources:
         limits:
           cpu: "1"
-          memory: "5Gi"
+          memory: "4Gi"
         requests:
           cpu: "1"
+          memory: "4Gi"
 
       # -- Extra environment variables to apply to the pods
       extraEnv:
@@ -390,18 +391,20 @@ windmill:
       # -- annotations to apply to the service
       annotations: {}
 
-  # lsp configuration
-  lsp:
-    tag: "latest"
+  # windmill-extra configuration (unified LSP, Multiplayer, and Debugger container)
+  windmillExtra:
+    # -- custom image (defaults to ghcr.io/windmill-labs/windmill-extra)
+    image: ""
 
-    # -- enable or disable lsp
-    enabled: false
+    # -- custom image tag (defaults to the App version)
+    tag: ""
 
     # -- Annotations to apply to the pods
     annotations: {}
 
-    # -- Annotations to apply to the pods
-    labels: {}
+    # -- Labels to apply to the pods
+    labels:
+      pod_type: permanent_pod
 
     # -- Node selector to use for scheduling the pods
     nodeSelector: {}
@@ -409,15 +412,16 @@ windmill:
     # -- Tolerations to apply to the pods
     tolerations: []
 
-    # -- legacy, use podSecurityContext instead
-    securityContext:
     # -- Security context to apply to the pods
     podSecurityContext:
-      # -- run as user. The default is 0 for root user
       runAsUser: 0
-      # -- run explicitly as a non-root user. The default is false.
       runAsNonRoot: false
+
+    # -- Security context to apply to the container
     containerSecurityContext: {}
+
+    # -- legacy, use podSecurityContext instead
+    securityContext: {}
 
     # -- Affinity rules to apply to the pods
     affinity: {}
@@ -427,71 +431,22 @@ windmill:
       limits:
         memory: "1Gi"
 
+    # -- enable LSP (Language Server Protocol) for code completion
+    enableLsp: false
+
+    # -- enable Debugger for debugging scripts
+    enableDebugger: false
+
+    # -- require signed debug requests (JWT tokens for debug sessions)
+    requireSignedDebugRequests: true
+
     # -- Extra environment variables to apply to the pods
     extraEnv: []
 
-    # lsp autoscaling configuration
-    autoscaling:
-      # -- enable or disable autoscaling
-      enabled: false
-      # -- maximum autoscaler replicas
-      maxReplicas: 10
-      # -- target CPU utilization
-      targetCPUUtilizationPercentage: 80
-
-    # lsp service configuration
+    # service configuration
     service:
       # -- Annotations to apply to the service
       annotations: {}
-
-  # multiplayer configuration
-  multiplayer:
-    tag: "latest"
-
-    # -- enable or disable multiplayer
-    enabled: false
-
-    # -- Annotations to apply to the pods
-    annotations: {}
-
-    # -- Annotations to apply to the pods
-    labels: {}
-
-    # -- Node selector to use for scheduling the pods
-    nodeSelector: {}
-
-    # -- Tolerations to apply to the pods
-    tolerations: []
-
-    # -- legacy, use podSecurityContext instead
-    securityContext:
-    # -- Security context to apply to the pods
-    podSecurityContext:
-      # -- run as user. The default is 0 for root user
-      runAsUser: 0
-      # -- run explicitly as a non-root user. The default is false.
-      runAsNonRoot: false
-    containerSecurityContext: {}
-
-    # -- Affinity rules to apply to the pods
-    affinity: {}
-
-    # -- Resource limits and requests for the pods
-    resources:
-      limits:
-        memory: "1Gi"
-
-    # -- Extra environment variables to apply to the pods
-    extraEnv: []
-
-    # lsp autoscaling configuration
-    autoscaling:
-      # -- enable or disable autoscaling
-      enabled: false
-      # -- maximum autoscaler replicas
-      maxReplicas: 10
-      # -- target CPU utilization
-      targetCPUUtilizationPercentage: 80
 
   # indexer configuration
   indexer:
