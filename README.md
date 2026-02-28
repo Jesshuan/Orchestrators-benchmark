@@ -122,17 +122,22 @@ systemctl start kubelet
 ```
 
 # 2. Deploy observability stack
+
+```bash
 cd observability-stack
 helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
 helm dependency build
 helm install observability-stack . -n observ-stack --create-namespace --values values.yaml
-
+```
 # 3. Setup external services
+
+```bash
 cd ../external_databases
 helm install external-db . -n external-db --create-namespace --values values.yaml
-
-# 4. Deploy orchestrators (see detailed docs for each)
 ```
+# 4. Deploy orchestrators (see detailed docs for each)
+
+**[Installation Guide](docs/GLOBAL_INSTALLATION.md)** - Complete step-by-step setup instructions for each orchestrator !
 
 ---
 
