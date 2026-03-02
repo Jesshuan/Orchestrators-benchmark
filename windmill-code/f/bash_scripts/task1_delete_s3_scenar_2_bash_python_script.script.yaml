@@ -3,7 +3,7 @@ description: A simple bash script for the benchmark scenario 2 variant 1 with ba
 lock: ''
 envs:
   - >-
-    PYTHONPATH=/tmp/windmill/cache/python_3.12/global-site-packages:${PYTHONPATH}
+    PYTHONPATH=/tmp/windmill/cache/python_3_11/global-site-packages:${PYTHONPATH}
   - 'MINIO_ENDPOINT=http://minio.external-db.svc.cluster.local:9000'
   - MINIO_ACCESS_KEY=minioadmin
   - MINIO_SECRET_KEY=minioadmin

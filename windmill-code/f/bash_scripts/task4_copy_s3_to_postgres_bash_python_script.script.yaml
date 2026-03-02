@@ -7,7 +7,7 @@ concurrency_time_window_s: 0
 concurrent_limit: 1
 envs:
   - >-
-    PYTHONPATH=/tmp/windmill/cache/python_3.12/global-site-packages:${PYTHONPATH}
+    PYTHONPATH=/tmp/windmill/cache/python_3_11/global-site-packages:${PYTHONPATH}
   - >-
     PUSHGATEWAY_URL=http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
   - 'MINIO_ENDPOINT=http://minio.external-db.svc.cluster.local:9000'
