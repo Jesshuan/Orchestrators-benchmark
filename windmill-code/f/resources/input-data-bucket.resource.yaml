@@ -1,0 +1,10 @@
+description: ''
+value:
+  accessKey: minioadmin
+  bucket: input-data
+  endPoint: http://minio.external-db.svc.cluster.local:9000
+  pathStyle: true
+  region: ''
+  secretKey: minioadmin
+  useSSL: false
+resource_type: s3

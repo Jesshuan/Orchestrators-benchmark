@@ -9,29 +9,31 @@ import requests
 import json
 
 #### Configuration ####
-
 SCENARIO = "scenario_2_b"
 TASK = "task_1"
 
 ####  Parameters (env) ####
 
-PUSHGATEWAY = wmill.get_variable("u/variables/PUSHGATEWAY_URL")
+PUSHGATEWAY = wmill.get_variable("f/variables/PUSHGATEWAY_URL")
 
 # -------- MINIO CONFIG --------
-MINIO_ENDPOINT = wmill.get_variable("f/variables/MINIO_ENDPOINT")
-MINIO_ACCESS_KEY = wmill.get_variable("f/variables/MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = wmill.get_variable("f/variables/MINIO_SECRET_KEY")
+minio_output_data = wmill.get_resource("f/resources/output-data-bucket")
 
-OUTPUT_BUCKET = wmill.get_variable("f/variables/OUTPUT_BUCKET")
+MINIO_ENDPOINT = minio_output_data["endPoint"]
+MINIO_ACCESS_KEY = minio_output_data["accessKey"]
+MINIO_SECRET_KEY = minio_output_data["secretKey"]
+OUTPUT_BUCKET = minio_output_data["bucket"]
 # -----------------------------
 
 
 # ---------- POSTGRES ----------
-PG_HOST = wmill.get_variable("f/variables/PG_HOST")
-PG_PORT = wmill.get_variable("f/variables/PG_PORT")
-PG_DB = wmill.get_variable("f/variables/PG_DB")
-PG_USER = wmill.get_variable("f/variables/PG_USER")
-PG_PASSWORD = wmill.get_variable("f/variables/PG_PASSWORD")
+postgres_db = wmill.get_resource("f/resources/external_postgresql")
+
+PG_HOST = postgres_db["host"]
+PG_PORT = postgres_db["port"]
+PG_DB = postgres_db["dbname"]
+PG_USER = postgres_db["user"]
+PG_PASSWORD = postgres_db["password"]
 # -----------------------------
 
 

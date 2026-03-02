@@ -1,0 +1,28 @@
+description: Custom resource Postgres for external db of the benchmark
+format_extension: null
+is_fileset: false
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  order:
+    - PG_HOST
+    - PG_PORT
+    - PG_USER
+    - PG_PASSWORD
+  properties:
+    PG_HOST:
+      type: string
+      description: ''
+      default: ''
+    PG_PASSWORD:
+      type: string
+      description: ''
+      default: ''
+    PG_PORT:
+      type: integer
+      description: ''
+    PG_USER:
+      type: string
+      description: ''
+      default: ''
+  required: []

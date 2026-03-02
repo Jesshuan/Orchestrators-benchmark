@@ -1,0 +1,3 @@
+description: ''
+value: http://observability-stack-prometheus-pushgateway.observ-stack.svc.cluster.local:9091
+is_secret: false

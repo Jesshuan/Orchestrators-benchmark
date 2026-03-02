@@ -1,3 +1,0 @@
-description: ''
-value: 'http://minio.external-db.svc.cluster.local:9000'
-is_secret: false

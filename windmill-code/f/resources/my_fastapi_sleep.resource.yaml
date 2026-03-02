@@ -1,0 +1,4 @@
+description: ''
+value:
+  URL: http://fastapi-sleep.fastapi-sleep.svc.cluster.local/sleep
+resource_type: c_fastapi_sleep

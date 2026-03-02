@@ -1,0 +1,14 @@
+description: ''
+format_extension: null
+is_fileset: false
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  order:
+    - URL
+  properties:
+    URL:
+      type: string
+      description: ''
+      default: ''
+  required: []

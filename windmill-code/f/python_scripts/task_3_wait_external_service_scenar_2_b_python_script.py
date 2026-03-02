@@ -12,10 +12,11 @@ TASK = "task_3"
 
 ####  Parameters (env) ####
 
-PUSHGATEWAY = wmill.get_variable("u/variables/PUSHGATEWAY_URL")
+PUSHGATEWAY = wmill.get_variable("f/variables/PUSHGATEWAY_URL")
 
-# ---------- EXTERNAL ----------
-EXTERNAL_SERVICE_URL = wmill.get_variable("f/variables/EXTERNAL_SERVICE_URL")
+# ---------- EXTERNAL FAST API ----------
+
+EXTERNAL_SERVICE_URL = wmill.get_resource("f/resources/my_fastapi_sleep")['URL']
 # ----------------------------
 
 #### Observability tools ###

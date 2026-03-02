@@ -80,8 +80,6 @@ This variant uses default Windmill workers with pure Python activities.
 
 #### Deploy Windmill with default workers
 
-**Note:** Remove the variant 1 worker setup befor applying this new variant: `helm uninstall mywindmill -n windmill`
-
 ```bash
 cd orchestrators-helm-deployments/windmill
 helm install mywindmill windmill/windmill -n windmill --values values_variant_2.yaml
@@ -133,7 +131,7 @@ Follow the prompts:
 
 ```bash
 cd windmill-code
-wmill sync push --include-schedules
+wmill sync push --include-schedules --plain-secrets
 ```
 
 This uploads:
@@ -141,8 +139,12 @@ This uploads:
 - Python scripts
 - Workflow definitions (flows)
 - Schedules
+- Resources
+- Variables
 
 Now, you just have to activate the scheduler one by one, depending on the scenario and variant used.
+
+For scenario 2b, perhaps you have to replace the secret resources by hand, even if we added the 'plain-secrets' argument to the 'wmill sync push' command... Go to Resources -> you resource and change the secret value, looking for the secret value in this repo... 
 
 ---
 

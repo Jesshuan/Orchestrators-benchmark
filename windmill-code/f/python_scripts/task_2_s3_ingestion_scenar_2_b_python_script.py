@@ -13,17 +13,20 @@ TASK = "task_2"
 
 ####  Parameters (env) ####
 
-PUSHGATEWAY = wmill.get_variable("u/variables/PUSHGATEWAY_URL")
+PUSHGATEWAY = wmill.get_variable("f/variables/PUSHGATEWAY_URL")
 
 # -------- MINIO CONFIG --------
-MINIO_ENDPOINT = wmill.get_variable("f/variables/MINIO_ENDPOINT") 
-MINIO_ACCESS_KEY = wmill.get_variable("f/variables/MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = wmill.get_variable("f/variables/MINIO_SECRET_KEY")
 
-INPUT_BUCKET = wmill.get_variable("f/variables/INPUT_BUCKET")
-INPUT_KEY = wmill.get_variable("f/variables/INPUT_KEY")
+minio_input_data = wmill.get_resource("f/resources/input-data-bucket")
+minio_output_data = wmill.get_resource("f/resources/output-data-bucket")
 
-OUTPUT_BUCKET = wmill.get_variable("f/variables/OUTPUT_BUCKET")
+MINIO_ENDPOINT = minio_output_data["endPoint"]
+MINIO_ACCESS_KEY = minio_output_data["accessKey"]
+MINIO_SECRET_KEY = minio_output_data["secretKey"]
+OUTPUT_BUCKET = minio_output_data["bucket"]
+INPUT_BUCKET = minio_input_data["bucket"]
+
+INPUT_KEY = "users.parquet"
 # -----------------------------
 
 

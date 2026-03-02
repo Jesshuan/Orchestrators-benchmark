@@ -1,0 +1,9 @@
+description: ''
+value:
+  dbname: benchmark
+  host: postgres.external-db.svc.cluster.local
+  password: benchmark
+  port: 5432
+  root_certificate_pem: ''
+  user: benchmark
+resource_type: postgresql
