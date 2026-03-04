@@ -146,6 +146,14 @@ Now, you just have to activate the scheduler one by one, depending on the scenar
 
 For scenario 2b, perhaps you have to replace the secret resources by hand, even if we added the 'plain-secrets' argument to the 'wmill sync push' command... Go to Resources -> you resource and change the secret value, looking for the secret value in this repo... 
 
+### Uninstall windmill
+```bash
+helm uninstall mywindmill -n windmill
+```
+
+And remove the pvc / pv k8s objects for the custom windmill postgres database. (with k9s or kubectl commands...)
+
+
 ---
 
 ## Apache Airflow
