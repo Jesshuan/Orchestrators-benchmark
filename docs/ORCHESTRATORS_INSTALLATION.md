@@ -149,9 +149,9 @@ For scenario 2b, perhaps you have to replace the secret resources by hand, even 
 ### Uninstall windmill
 ```bash
 helm uninstall mywindmill -n windmill
-```
 
-And remove the pvc / pv k8s objects for the custom windmill postgres database. (with k9s or kubectl commands...)
+helm uninstall windmill-postgres -n windmill
+```
 
 
 ---
@@ -561,7 +561,7 @@ kubectl apply -f create_schedule_scenar_1_a.yaml -n temporal
 Check the job logs:
 
 ```bash
-kubectl logs -n temporal job/temporal-generate-schedules-scenar-1
+kubectl logs -n temporal job/temporal-generate-schedules-scenar-1-a-2
 ```
 
 The schedules will be visible in the Temporal WebUI and are **paused by default**. Unpause them to start execution.
@@ -577,6 +577,19 @@ kubectl port-forward -n temporal svc/temporal-web 8080:8080
 ```
 
 Navigate to: `http://localhost:8080`
+
+### Uninstall
+
+```bash
+helm uninstall temporal-workers -n temporal
+
+helm uninstall temporal -n temporal
+
+helm uninstall custom-temporal-postgres-db
+```
+
+And remove all pvc, pv linked to temporal (with kubectl commands, or k9s...)
+
 
 ---
 
