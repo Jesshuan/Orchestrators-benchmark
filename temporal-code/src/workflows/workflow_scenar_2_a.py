@@ -20,14 +20,14 @@ class IOBound2aWorkflow:
             scheduling_interval=wf_def.scheduling_interval,
             workflow_number=wf_def.workflow_number,
             last_result=result,
-            python_script_path="/app/python-benchmark/src/scripts/task1_delete_s3_and_tables.py",
-            retry_policy=RetryPolicy(maximum_attempts=1)
+            python_script_path="/app/python-benchmark/src/scripts/task1_delete_s3_and_tables.py"
         )
         
         result = await workflow.execute_activity(
             run_io_bound_task,
             params_task_1,
-            start_to_close_timeout=timedelta(seconds=wf_def.scheduling_interval * 10)
+            start_to_close_timeout=timedelta(seconds=wf_def.scheduling_interval * 10),
+            retry_policy=RetryPolicy(maximum_attempts=1)
         )
 
         # -- TASK 2 --
