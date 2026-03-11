@@ -397,7 +397,20 @@ Retrieve the last workflows executed... test it again with the "Re-Submit" optio
 
 ---
 
-### Step 9: Deploy workflow templates
+### Step 9: Build the 'worker' python docker image for argo workflox
+
+From the root of this repo project:
+```bash
+docker build -t python-bench-project -f ./docker-orchestrator-factory/simple-python-docker-image/Dockerfile .
+```
+And load it to the kind cluster node:
+```bash
+kind load docker-image python-bench-project:latest -n bench-orchestrator
+```
+
+---
+
+### Step 10: Deploy workflow templates
 
 Deploy reusable workflow templates:
 
